@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent" android:layout_height="fill_parent" android:orientation="vertical">
+    <Button android:text="Try authenticate" android:id="@+id/button3" android:layout_width="wrap_content" android:layout_height="wrap_content"></Button>
+    <LinearLayout android:layout_height="wrap_content" android:layout_width="fill_parent" android:id="@+id/linearLayout3">
+        <TextView android:text="Result: " android:layout_height="wrap_content" android:textAppearance="?android:attr/textAppearanceMedium" android:layout_width="wrap_content" android:id="@+id/textView4"></TextView>
+        <TextView android:text="None" android:layout_height="wrap_content" android:textAppearance="?android:attr/textAppearanceMedium" android:layout_width="wrap_content" android:id="@+id/textView5"></TextView>
+    </LinearLayout>
+    <TextView android:textAppearance="?android:attr/textAppearanceLarge" android:id="@+id/textView1" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/UPLOAD_TEST_CAPTION"></TextView>
+    <EditText android:id="@+id/editText1" android:layout_width="fill_parent" android:layout_height="wrap_content" android:inputType="textEmailAddress">
+        <requestFocus></requestFocus>
+    </EditText>
+    <LinearLayout android:layout_height="wrap_content" android:layout_width="fill_parent" android:id="@+id/linearLayout1">
+        <Button android:id="@+id/button1" android:text="Upload" android:layout_height="wrap_content" android:layout_width="wrap_content"></Button>
+        <TextView android:text="Result will be shown here" android:layout_height="wrap_content" android:textAppearance="?android:attr/textAppearanceMedium" android:layout_width="fill_parent" android:id="@+id/textView2"></TextView>
+    </LinearLayout>
+    <LinearLayout android:layout_height="wrap_content" android:layout_width="fill_parent" android:id="@+id/linearLayout2">
+        <TextView android:text="Download test." android:layout_height="wrap_content" android:textAppearance="?android:attr/textAppearanceLarge" android:layout_width="wrap_content" android:id="@+id/textView3"></TextView>
+        <Button android:text="Download" android:id="@+id/button2" android:layout_width="wrap_content" android:layout_height="wrap_content"></Button>
+    </LinearLayout>
+    <EditText android:layout_height="wrap_content" android:layout_width="fill_parent" android:id="@+id/editText2" android:editable="false"></EditText>
+</LinearLayout>
+
