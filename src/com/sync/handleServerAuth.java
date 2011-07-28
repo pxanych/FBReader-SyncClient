@@ -13,7 +13,7 @@ public class handleServerAuth extends Activity
 		super.onCreate(savedState);
 		Intent i = getIntent();
 		String dataString = i.getDataString();
-		setContentView(R.layout.main);
+		setContentView(R.layout.handle_auth);
 		TextView uriTextView = (TextView) findViewById(R.id.textView2);
 		uriTextView.setText(dataString);
 		return;
