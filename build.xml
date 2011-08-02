@@ -6,6 +6,7 @@
      It contains the path to the SDK. It should *NOT* be checked into
      Version Control Systems. -->
     <property file="local.properties" />
+	
 
     <!-- The build.properties file can be created by you and is never touched
          by the 'android' tool. This is the place to change some of the
@@ -34,8 +35,9 @@
 
 
     <!-- Required pre-setup import -->
+	
     <import file="${sdk.dir}/tools/ant/pre_setup.xml" />
-
+	
 
 <!-- extension targets. Uncomment the ones where you want to do custom work
      in between standard targets -->

@@ -109,7 +109,6 @@ public class SyncMenu extends Activity{
     }
     
     private class AuthListener implements OnClickListener{
-    	@Override
     	public void onClick(View v) {
     		Intent browserIntent = new Intent(Intent.ACTION_VIEW);
     		browserIntent.setData(Uri.parse("https://data.fbreader.org/sync/?sync_respondtype=url"));
@@ -119,7 +118,6 @@ public class SyncMenu extends Activity{
     }
     
     private class DropAuthListener implements OnClickListener{
-    	@Override
     	public void onClick(View v) {
     		SharedPreferences settings = getSharedPreferences(SETTINGS_FILENAME, 0);
     		Editor editor = settings.edit();
@@ -132,7 +130,6 @@ public class SyncMenu extends Activity{
     }
     
     private class UploadListener implements OnClickListener{
-    	@Override
     	public void onClick(View v) {
     		JSONArray respond = myServerInterface.uploadFile(myDataToSave.getText().toString());
     		if(respond != null){
@@ -142,7 +139,6 @@ public class SyncMenu extends Activity{
     }
     
     private class DownloadListener implements OnClickListener{
-    	@Override
     	public void onClick(View v) {
     		JSONArray respond = myServerInterface.downloadFile();
     		if(respond != null){
