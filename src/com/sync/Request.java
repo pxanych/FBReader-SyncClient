@@ -34,23 +34,23 @@ public class Request extends ZLNetworkRequest {
 	public void handleStream(InputStream inputStream, int length)
 			throws IOException, ZLNetworkException {
 		byte[] buf = new byte[(length != -1) ? length : 1024];
-		String s = null;
+		String jsonRespondString = null;
 		if (length == -1)
 		{
 			StringBuilder sb = new StringBuilder();
-			int nread;
-			while ((nread = inputStream.read(buf, 0, 1024)) != -1)
+			int symbolsReaded;
+			while ((symbolsReaded = inputStream.read(buf, 0, 1024)) != -1)
 			{
-				sb.append(new String(buf, 0, nread));
+				sb.append(new String(buf, 0, symbolsReaded));
 			}
-			s = sb.toString();		
+			jsonRespondString = sb.toString();		
 		} else 
 		{
 			inputStream.read(buf, 0, length);
-			s = new String(buf);
+			jsonRespondString = new String(buf);
 		}
 		try {
-			myResponse = new JSONArray(s);
+			myResponse = new JSONArray(jsonRespondString);
 		} catch (JSONException e) {
 			myResponse = null;
 		}

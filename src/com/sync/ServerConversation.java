@@ -12,10 +12,10 @@ import org.json.JSONArray;
 
 public class ServerConversation{
 	
-	public ServerConversation(URL host, String id, String sig){
+	public ServerConversation(URL host, String id, String signature){
 		setServerUrl(host);
 		this.myID = id;
-		this.mySignature = sig;
+		this.mySignature = signature;
 	}
 	
 	
@@ -37,17 +37,17 @@ public class ServerConversation{
 	}
 	
 	
-	public JSONArray uploadFile(String contents){
+	public JSONArray uploadString(String string){
 		String hash = "";
 		try{
-			hash = Digests.hmacSHA256(contents, mySignature);
+			hash = Digests.hmacSHA256(string, mySignature);
 		}
 		catch (InvalidKeyException e){
 			e.printStackTrace();
 			return null;
 		}
 		
-		String requestBody = hash + "&" + myID + "&" + contents;
+		String requestBody = hash + "&" + myID + "&" + string;
 		String requestUrl = myServerUrl + "sync_upload.php5";
 		Request request = new Request( requestUrl, null, requestBody);
 		ZLNetworkManager networkManager = new ZLNetworkManager();
@@ -62,7 +62,7 @@ public class ServerConversation{
 	}
 
 	
-	public JSONArray downloadFile()	{
+	public JSONArray downloadString()	{
 		String requestUrl = myServerUrl + "sync_download.php5?stage=init";
 		Request request = new Request(requestUrl);
 		ZLNetworkManager networkManager = new ZLNetworkManager();

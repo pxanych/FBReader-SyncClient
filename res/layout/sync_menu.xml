@@ -5,9 +5,6 @@
     	<Button android:text="Authenticate" android:id="@+id/button3" android:layout_height="wrap_content" android:layout_width="wrap_content"></Button>
     	<TextView android:textAppearance="?android:attr/textAppearanceMedium" android:text="TextView" android:id="@+id/textView3" android:layout_height="wrap_content" android:layout_width="wrap_content"></TextView>
     </LinearLayout>
-    <EditText android:id="@+id/editText1" android:layout_width="fill_parent" android:layout_height="wrap_content" android:enabled="false">
-        <requestFocus></requestFocus>
-    </EditText>
     <Button android:text="Upload settings string to server" android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/button1" android:enabled="false"></Button>
     <TextView android:id="@+id/textView1" android:layout_width="wrap_content" android:textAppearance="?android:attr/textAppearanceSmall" android:layout_height="wrap_content" android:text="Null"></TextView>
     <Button android:text="Download settings string from server" android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/button2" android:enabled="false"></Button>
