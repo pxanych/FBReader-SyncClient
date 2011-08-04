@@ -1,5 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">SyncTest</string>
-    <string name="sync_menu_item">Синхронизация настроек/закладок</string>
+    <string name="app_name">Synchronization</string>
+    <string name="sync_menu_item">Options synchronization</string>
+    <string name="upload_button">Upload data to server</string>
+    <string name="download_button">Download data from server</string>
+    <string name="auth_button_authenticate">Authenticate with Google OpenID</string>
+    <string name="auth_button_logout">Logout</string>
+    <string name="auth_failed">Authentication failed.</string>
+    <string name="auth_failed_server">Authentication failed due to server error. Please retry later.</string>
+    <string name="internal_error">Internal error: </string>
+    <string name="server_error">Server communication error.</string>
+    
+    
 </resources>

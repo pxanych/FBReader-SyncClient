@@ -1,5 +1,6 @@
 package com.sync;
 
+import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.HashMap;
@@ -18,75 +19,74 @@ import org.xml.sax.InputSource;
 import org.xmlpull.v1.XmlSerializer;
 
 import android.app.Activity;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.net.Uri;
 import android.os.Bundle;
 import org.w3c.dom.Element;
+
 import android.util.Xml;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class SyncMenu extends Activity implements ApiClientImplementation.ConnectionListener{
 	
-	public static final String SETTINGS_FILENAME = "FBSYNC_SETTINGS";
+	private static final String SETTINGS_FILENAME = "FBSYNC_SETTINGS";
 	
 	private ApiClientImplementation myApi;
-	private Button myUpload;
-	private Button myDownload;
-	private Button myAuthenticate;
-	private TextView myUploadResponse;
-	private TextView myDownloadResponse;
-	private TextView myAuthenticationStatus;
 	private ServerConversation myServerInterface;
+	private Boolean myAuthorized = false;
 	
-    /** Called when the activity is first created. */
-    @Override
-    public void onCreate(Bundle savedInstanceState){
+    public void onCreate(Bundle savedInstanceState) {
     	setContentView(R.layout.sync_menu);
-    	myUpload = (Button)findViewById(R.id.button1);
-    	myDownload = (Button)findViewById(R.id.button2);
-    	myAuthenticate = (Button)findViewById(R.id.button3);
-    	myUploadResponse = (TextView)findViewById(R.id.textView1);
-    	myDownloadResponse = (TextView)findViewById(R.id.textView2);
-    	myAuthenticationStatus = (TextView)findViewById(R.id.textView3);
-    	myAuthenticationStatus.setVisibility(View.VISIBLE);
+    	Button myUpload;
+    	Button myDownload;
+    	Button myAuthenticate;
+    	myUpload = (Button)findViewById(R.id.uploadButton);
+    	myDownload = (Button)findViewById(R.id.downloadButton);
+    	myAuthenticate = (Button)findViewById(R.id.authButton);
     	myUpload.setOnClickListener(new UploadListener());
-    	myDownload.setOnClickListener(new DownloadListener());
+    	myDownload.setOnClickListener(new DownloadListener());    
+    	
     	
     	SharedPreferences settings = getSharedPreferences(SETTINGS_FILENAME, 0);
-		if (settings.getBoolean("AUTH", false)){
+		if (settings.getBoolean("AUTH", false) == true) {
 			myServerInterface = new ServerConversation(
-					null,
+					null,	// default host (https://data.fbreader.org/sync) is used
 					settings.getString("ID", ""), 
 					settings.getString("SIG", ""));
 			myAuthenticate.setOnClickListener(new DropAuthListener());
-			myAuthenticate.setText("Logout");
-			myUploadResponse.setText("Loaded");
-			setControlsEnabled(true);
+			myAuthenticate.setText(R.string.auth_button_logout);
+			myAuthorized = true;
 		} else {
 			myAuthenticate.setOnClickListener(new AuthListener());
-			myAuthenticate.setText("Authenticate");
+			myAuthenticate.setText(R.string.auth_button_authenticate);
 			setControlsEnabled(false);
 			Uri data = getIntent().getData();
-	    	if (data != null){
+	    	if (data != null) {
 	    		completeAuthentication(data);
 	    	}
 		}    	
 		
 		myApi = new ApiClientImplementation(this, this);
+		if (myApi == null) {
+			Toast.makeText(this, R.string.internal_error, Toast.LENGTH_SHORT);
+			finish();
+		}
 		super.onCreate(savedInstanceState);
-    }
-    
+    }    
 
     public void onConnected() {
-    	// TODO: Buttons should be enabled here.
+    	((TextView)findViewById(R.id.debugString)).setText(myAuthorized.toString());
+    	setControlsEnabled(myAuthorized);
     };
     
-    private String serializeOptions(Map<String, Map<String, String>> options){
+    private String serializeOptions(Map<String, Map<String, String>> options) {
     	try{
     		StringWriter writer = new StringWriter();
     		XmlSerializer serializer = Xml.newSerializer();
@@ -94,12 +94,11 @@ public class SyncMenu extends Activity implements ApiClientImplementation.Connec
     		
     	   	serializer.startDocument("utf-8", true);
     	   	serializer.startTag(null, "options");
-    	   	serializer.attribute(null, "groupcount", String.valueOf(options.size()));
     	   	
-    	   	for (Map.Entry<String, Map<String, String>> group : options.entrySet()){
+    	   	for (Map.Entry<String, Map<String, String>> group : options.entrySet()) {
     	   		serializer.startTag(null, "group");
     	   		serializer.attribute(null, "groupName", group.getKey());    	   		
-    	   		for(Map.Entry<String, String> option : group.getValue().entrySet()){
+    	   		for(Map.Entry<String, String> option : group.getValue().entrySet()) {
     	   			serializer.startTag(null, "option");
     	   			serializer.attribute(null, "optionName", option.getKey());
     	   			serializer.attribute(null, "value", option.getValue());
@@ -114,12 +113,14 @@ public class SyncMenu extends Activity implements ApiClientImplementation.Connec
     	   	
     	   	return writer.toString();
     	}
-    	catch(Exception e){
-    		return e.getMessage();
+    	catch(IOException e) {
+    		Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT);
+    		return null;
     	}
     }
     
-    private void applyXmlEncodedOptions(String xml){
+    private void applyXmlEncodedOptions(String xml) { 
+    	TextView debugView = (TextView)findViewById(R.id.debugString);
     	InputSource source = new InputSource(new StringReader(xml));
     	String debugOutputString = "";
     	try{
@@ -127,18 +128,18 @@ public class SyncMenu extends Activity implements ApiClientImplementation.Connec
 									.newDocumentBuilder().parse(source)
 									.getDocumentElement();
     		
-    		if (docElement.getNodeName().equals("options")){
+    		if (docElement.getNodeName().equals("options")) {
     			NodeList groups = docElement.getChildNodes();
     			
     			int groupCount = groups.getLength();
-    			for(int i = 0; i < groupCount; ++i){
+    			for(int i = 0; i < groupCount; ++i) {
     				Node groupTag = groups.item(i);
     				NodeList options = groupTag.getChildNodes();
     				debugOutputString += groupTag.getAttributes()
     										.getNamedItem("groupName").getNodeValue() + "\n";
     				
     				int optionCount = options.getLength();
-    				for(int j = 0; j < optionCount; ++j){
+    				for(int j = 0; j < optionCount; ++j) {
     					Node option = options.item(j);
     					String optName = option.getAttributes().getNamedItem("optionName").getNodeValue();
     					String optValue = option.getAttributes().getNamedItem("value").getNodeValue();
@@ -146,114 +147,139 @@ public class SyncMenu extends Activity implements ApiClientImplementation.Connec
     				}
     			}
     		}
-    		myDownloadResponse.setText(debugOutputString);
+    		debugView.setText(debugOutputString);
     	}
-    	catch (Exception e){
-    		myDownloadResponse.setText(xml + "\n\n" + e.getMessage());
-    	}
-    }
-    
-    @Override
-    protected void onNewIntent(Intent intent){
-    	setIntent(intent);
-    	if (intent.hasExtra("RETRY")){
-    		myAuthenticationStatus.setText("Authentication failed. Please retry");
-    		myAuthenticationStatus.setVisibility(View.VISIBLE);
+    	catch (Exception e) {
+    		debugView.setText(xml + "\n\n" + e.getMessage());
+    		Toast.makeText(this,R.string.internal_error, Toast.LENGTH_SHORT);
     	}
     }
     
-    private void completeAuthentication(Uri response){
+    private void completeAuthentication(Uri response) {
+    	TextView debugView = (TextView)findViewById(R.id.debugString);
+    	Button authButton = (Button)findViewById(R.id.authButton);
     	String query = response.getQuery();
-		String[] args = query.split("&");
-		for (int i = 0; i < args.length; ++i){
-			args[i] = args[i].split("=", 2)[1];
-		}
-		
-		if(args[0].equals("1")){
-			SharedPreferences settings = getSharedPreferences(SETTINGS_FILENAME, 0);
-			SharedPreferences.Editor editor = settings.edit();
-			editor.putString("ID", args[1]);
-			editor.putString("SIG", args[2]);
-			editor.putBoolean("AUTH", true);
-			editor.commit();
+    	findViewById(R.id.browserView).setVisibility(View.INVISIBLE);
+    	try{
+    		if (query == null) {
+    			debugView.setText("Invalid server response: no query string");
+    			query = "";
+    		}
+			String[] args = query.split("&");
+			for (int i = 0; i < args.length; ++i) {
+				args[i] = args[i].split("=", 2)[1];
+			}
 			
-			myServerInterface = new ServerConversation(null, args[1], args[2]);
-			myAuthenticate.setOnClickListener(new DropAuthListener());
-			myAuthenticate.setText("Logout");
-			setControlsEnabled(true);
-		} else {
-			Intent retryAuth = new Intent();
-			retryAuth.setClass(getApplicationContext(), SyncMenu.class);
-			retryAuth.putExtra("RETRY", true);
-			startActivity(retryAuth);
-			finish();
-		}
+			if("1".equals(args[0])) {
+				SharedPreferences settings = getSharedPreferences(SETTINGS_FILENAME, 0);
+				SharedPreferences.Editor editor = settings.edit();
+				editor.putString("ID", args[1]);
+				editor.putString("SIG", args[2]);
+				editor.putBoolean("AUTH", true);
+				editor.commit();
+				
+				myServerInterface = new ServerConversation(null, args[1], args[2]);
+				authButton.setOnClickListener(new DropAuthListener());
+				authButton.setText(R.string.auth_button_logout);
+				setControlsEnabled(true);
+				myAuthorized = true;
+			} else {
+				Toast.makeText(this, R.string.auth_failed, Toast.LENGTH_SHORT);
+			}
+    	}
+    	catch(ArrayIndexOutOfBoundsException e) {
+    		Toast.makeText(this, R.string.auth_failed_server, Toast.LENGTH_SHORT);
+    		debugView.setText("Invalid server response: " + response.getQuery());    		
+    	}
     }
     
-    private void setControlsEnabled(Boolean state){
-		myUpload.setEnabled(state);
-		myDownload.setEnabled(state);
+    private void setControlsEnabled(Boolean state) {
+		findViewById(R.id.uploadButton).setEnabled(state);
+		findViewById(R.id.downloadButton).setEnabled(state);
     }
+    
+    private class SyncWebViewClient extends WebViewClient {
+    	@Override
+	    public boolean shouldOverrideUrlLoading(WebView view, String url) {
+	    	if (!url.startsWith("fbsync")) {
+		        view.loadUrl(url);
+		        return true;
+	    	} else {
+	    		completeAuthentication(Uri.parse(url));
+	    		return false;
+	    	}
+	    }
+	}
     
     private class AuthListener implements OnClickListener{
-    	public void onClick(View v) {
-    		Intent browserIntent = new Intent(Intent.ACTION_VIEW);
-    		browserIntent.setData(Uri.parse("https://data.fbreader.org/sync/?sync_respondtype=url"));
-    		startActivity(browserIntent);
-			finish();
+    	public void onClick(View v) {    		
+    		WebView browserView = (WebView)findViewById(R.id.browserView);
+    		browserView.setVisibility(View.VISIBLE);
+    		browserView.setNetworkAvailable(true);
+    		browserView.setWebViewClient(new SyncWebViewClient());
+    		browserView.getSettings().setJavaScriptEnabled(true);
+    		browserView.loadUrl("https://data.fbreader.org/sync/?sync_respondtype=url");
     	}
     }
     
     private class DropAuthListener implements OnClickListener{
     	public void onClick(View v) {
+    		Button authButton = (Button)findViewById(R.id.authButton);
     		SharedPreferences settings = getSharedPreferences(SETTINGS_FILENAME, 0);
     		Editor editor = settings.edit();
     		editor.clear();
     		editor.commit();
-    		myAuthenticate.setOnClickListener(new AuthListener());
-    		myAuthenticate.setText("Authenticate");
+    		authButton.setOnClickListener(new AuthListener());
+    		authButton.setText(R.string.auth_button_authenticate);
     		setControlsEnabled(false);
+    		myAuthorized = false;
     	}
     }
     
     private class UploadListener implements OnClickListener{
     	public void onClick(View v) {
+    		TextView debugView = (TextView)findViewById(R.id.debugString);
         	try{
         		List<String> groups = myApi.getOptionGroups();
         		Map<String, Map<String, String>> options = 
         			new HashMap<String,Map<String, String>>();
         		
-        		for (String group : groups){
+        		for (String group : groups) {
         			Map<String, String> groupOptions = new HashMap<String, String>();
         			options.put(group, groupOptions);
-        			for (String option : myApi.getOptionNames(group)){
+        			for (String option : myApi.getOptionNames(group)) {
         				groupOptions.put(option, myApi.getOptionValue(group, option));
         			}
         		}
         		
         		JSONArray respond = myServerInterface.uploadString(serializeOptions(options));
-        		if(respond != null){
-        			myUploadResponse.setText(respond.toString());
+        		if(respond != null) {
+        			debugView.setText(respond.toString());
         		}
         	}
-        	catch(ApiException e){
-        		myUploadResponse.setText("Fail: " + e.getMessage());
+        	catch(ApiException e) {
+        		debugView.setText("Fail: " + e.getMessage());
         	}
     	}
     }
     
     private class DownloadListener implements OnClickListener{
     	public void onClick(View v) {
+    		TextView debugView = (TextView)findViewById(R.id.debugString);
     		JSONArray respond = myServerInterface.downloadString();
-    		if(respond != null){
+    		if(respond != null) {
     			try{
     				applyXmlEncodedOptions(respond.get(1).toString());
     			} 
     			catch (JSONException e) {
-					myDownloadResponse.setText(e.getMessage());
+    				Toast.makeText(
+	    						getApplicationContext(),
+	    						R.string.server_error,
+	    						Toast.LENGTH_SHORT
+	    					);
 				}
     		} else {
-    			myDownloadResponse.setText("Server interaction error.");
+    			debugView.setText("Server interaction error.");
     		}
     	}
     }

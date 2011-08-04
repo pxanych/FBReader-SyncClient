@@ -1,14 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent" android:layout_height="fill_parent" android:orientation="vertical">
-    <LinearLayout android:id="@+id/linearLayout1" android:layout_width="fill_parent" android:layout_height="wrap_content">
-    	<Button android:text="Authenticate" android:id="@+id/button3" android:layout_height="wrap_content" android:layout_width="wrap_content"></Button>
-    	<TextView android:textAppearance="?android:attr/textAppearanceMedium" android:text="TextView" android:id="@+id/textView3" android:layout_height="wrap_content" android:layout_width="wrap_content"></TextView>
-    </LinearLayout>
-    <Button android:text="Upload settings string to server" android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/button1" android:enabled="false"></Button>
-    <TextView android:id="@+id/textView1" android:layout_width="wrap_content" android:textAppearance="?android:attr/textAppearanceSmall" android:layout_height="wrap_content" android:text="Null"></TextView>
-    <Button android:text="Download settings string from server" android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/button2" android:enabled="false"></Button>
-    <TextView android:id="@+id/textView2" android:layout_width="wrap_content" android:textAppearance="?android:attr/textAppearanceSmall" android:layout_height="wrap_content" android:text="Null"></TextView>
-    
+    <Button android:layout_height="wrap_content" android:text="@string/download_button" android:id="@+id/downloadButton" android:layout_width="match_parent"></Button>
+    <Button android:layout_height="wrap_content" android:text="@string/upload_button" android:id="@+id/uploadButton" android:layout_gravity="fill_horizontal" android:layout_width="match_parent"></Button>
+    <Button android:layout_height="wrap_content" android:text="@string/auth_button_authenticate" android:id="@+id/authButton" android:layout_width="match_parent"></Button>
+    <TextView android:layout_height="wrap_content" android:id="@+id/debugString" android:layout_width="wrap_content" android:text="This is debug string. It will be removed in release."></TextView>
+    <WebView android:layout_width="match_parent" android:layout_height="match_parent" android:id="@+id/browserView" android:visibility="invisible"></WebView>    
 </LinearLayout>
 

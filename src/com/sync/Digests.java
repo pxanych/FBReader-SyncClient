@@ -44,7 +44,6 @@ public class Digests{
             return byteArrayToHexString(hmacSHA256.doFinal());
         }
         catch (IOException e){
-        	e.printStackTrace();
             return null;
         }
     }
