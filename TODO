@@ -1,12 +1,96 @@
 Сервер:
-
-
+	Хранить данные пользователей в БД, а не в файлах ?
+	Сохранять закладки отдельно от настроек
+	Удалять закладки, которые удалил пользователь на одном из своих устройств ?
+	Для каждого лользователя держать таблицу с закладками ?
+	
+================================================================
+	
 Клиент.код:
 
+----------------------------------------------------------------
 
 Клиент.функционал:
-	Синхронизация только выбранных настроек.
-	Синхронизация закладок.
+	Сделать меню, в котором можно было бы выбрать синхронизируемые настройки.
+	Настройки:
+		Appearance
+			Automatic rotation
+			Show status bar (+show status bar when menu becomes active)
+			Disable HW button
+		Text
+			Font:
+				family, size, style ?
+				More styles ...		?
+			Line spacing
+			Alignment
+			Auto hyphenations
+		Color & wallpapers
+			Background
+			BG color
+			Search results BG
+			Regular text
+			Hyperlink text (+visited)
+			Footer
+			Selection BG
+			Selected text
+		Text margins (L, R, T, B)
+		Progress indicator
+			Scrollbar type
+			Footer height
+			Footer color
+			Show TOC marks
+			Show clock
+			Show battery level
+			Show page number
+			Font family
+		Display
+			Screen brightness adjustment
+			Prevent screen from sleeping
+		Scrolling
+			Touch screen scrolling
+			Double tap detection
+			Turn page with volume keys
+			Invert volume keys direction
+			Animation (Slide animation)
+			Animation speed
+			Horizontal scrolling
+		Dictionary 
+			Dictionary
+			Translator
+			Navigate over all words
+			Long tapping action
+		Images
+			Long tapping action
+			BG color for image
+		Cancel menu
+			Previous book
+			Last 3 positions
+			Back key action
+			Back key long press action
+			
+	Синхронизация закладок:
+		Отмечать книги, закладки которых нужно синхронизировать
+		При синхронизации закладок передавать только diff данные	
+
+----------------------------------------------------------------
 
 Клиент.GUI:
-	+= запуск WebView вместо полноэкранного браузера.
+	проверить запуск WebView вместо полноэкранного браузера.
+	
+	Сделать меню:
+		Аутентификация
+		Синхронизация настроек
+			Отправить настройки на сервер
+			Загрузить настройки с сервера
+		Синхронизация закладок
+		Настройки
+			Синхронизировать закладки для:
+			  1) всех книг (При включении - предупреждать, что это может занять значительное время)
+			  2) отмеченных книг
+			Синхронизируемые настройки
+				Повторить структуру меню настроек FBReader?
+				 
+		
+	
+	
+	
