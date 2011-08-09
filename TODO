@@ -1,9 +1,23 @@
+Идентификатор книги - хэш её содержимого.
+
 Сервер:
-	Хранить данные пользователей в БД, а не в файлах ?
-	Сохранять закладки отдельно от настроек
-	Удалять закладки, которые удалил пользователь на одном из своих устройств ?
-	Для каждого лользователя держать таблицу с закладками ?
+	|Хранить данные пользователей в БД, а не в файлах
+	|Сохранять закладки отдельно от настроек
+	\___
+		будем для каждого пользователя создавать таблицы:
+			1) settings (group - string, name - string, value - string)
+			2) bookmarks (book_hash - string, text_position - string, devices - string, deleted - bool)
 	
+	Удалять закладки, которые удалил пользователь на одном из своих устройств:
+		- как только устройство сообщает об удалении закладки - выставляем ей флаг deleted
+		- остальным устройствам, у которых есть эта закладка, сервер будет сообщать, что её надо удалить
+			*при следующей синхронизации устройство подтвердит удаление закладки -> убираем это устройство из поля devices
+		- как только поле devices станет пустым - можно стирать запись о закладке на сервере
+		? как плагин будет узнавать об удалении закладки? Кстати, о добавлении тоже надо как-то узнавать.
+			- запрашивать у сервера полный список закладок и сравнивать с текущим списком закладок FBReader, но это долго.
+			- получать информацию о добавлении/удалении закладок от самого FBReader			
+			 
+		
 ================================================================
 	
 Клиент.код:
@@ -11,86 +25,102 @@
 ----------------------------------------------------------------
 
 Клиент.функционал:
+	+При запуске FBReader загружаем обновления настроек/заладок с сервера, при завершении - скидываем всё на сервер
+	+Как отследить запуск/завершение FBReader?
 	Сделать меню, в котором можно было бы выбрать синхронизируемые настройки.
-	Настройки:
-		Appearance
-			Automatic rotation
-			Show status bar (+show status bar when menu becomes active)
-			Disable HW button
-		Text
-			Font:
-				family, size, style ?
-				More styles ...		?
-			Line spacing
-			Alignment
-			Auto hyphenations
-		Color & wallpapers
-			Background
-			BG color
-			Search results BG
-			Regular text
-			Hyperlink text (+visited)
-			Footer
-			Selection BG
-			Selected text
-		Text margins (L, R, T, B)
-		Progress indicator
-			Scrollbar type
-			Footer height
-			Footer color
-			Show TOC marks
-			Show clock
-			Show battery level
-			Show page number
-			Font family
-		Display
-			Screen brightness adjustment
-			Prevent screen from sleeping
-		Scrolling
-			Touch screen scrolling
-			Double tap detection
-			Turn page with volume keys
-			Invert volume keys direction
-			Animation (Slide animation)
-			Animation speed
-			Horizontal scrolling
-		Dictionary 
-			Dictionary
-			Translator
-			Navigate over all words
-			Long tapping action
-		Images
-			Long tapping action
-			BG color for image
-		Cancel menu
-			Previous book
-			Last 3 positions
-			Back key action
-			Back key long press action
-			
+		
 	Синхронизация закладок:
-		Отмечать книги, закладки которых нужно синхронизировать
+		? Отмечать книги, закладки которых нужно синхронизировать
 		При синхронизации закладок передавать только diff данные	
 
 ----------------------------------------------------------------
 
 Клиент.GUI:
-	проверить запуск WebView вместо полноэкранного браузера.
+	Исправить ошибку, из-за которой браузер не отображается в dialog'е.
 	
-	Сделать меню:
-		Аутентификация
-		Синхронизация настроек
-			Отправить настройки на сервер
-			Загрузить настройки с сервера
-		Синхронизация закладок
-		Настройки
-			Синхронизировать закладки для:
-			  1) всех книг (При включении - предупреждать, что это может занять значительное время)
-			  2) отмеченных книг
-			Синхронизируемые настройки
-				Повторить структуру меню настроек FBReader?
-				 
+	
+================================================================
+
+Методы API:
+- X - информация, описывающая закладку.
+1) List<X> Получение списка закладок для конкретной книги(Y);
+2) List<Y> Получение списка книг();
+3) String Путь к файлу книги(Y);
+4) void Добавление закладок к книге(Y, List<X>);
+5) void Удаление закладки(Y, X);
+- что можно использовать в качестве аргумента Y?
+	Думаю, так или иначе, плагину придётся хранить таблицу соответствий (Y <==> хэш книги) на каждом устройстве
+	
++ было бы здорово, если FBReader будет Broadcast'ить о своём запуске/завершении, 
+  а также о добавлении/удалении закладок.   
+  
+
+================================================================
+
+NOTE:
+**Разбить этот список на несколько групп, убрать лишнее.
+
+Настройки, которые можно будет синхронизировать:
+	Настройки папок пропускаем?
+	Appearance
+		Automatic rotation
+		Show status bar (+show status bar when menu becomes active)
+		Disable HW button
+	Text
+		Font:
+			family, size, style ?
+			More styles ...		?
+		Line spacing
+		Alignment
+		Auto hyphenations
+	Color & wallpapers
+		Background
+		BG color
+		Search results BG
+		Regular text
+		Hyperlink text (+visited)
+		Footer
+		Selection BG
+		Selected text
+	Text margins (L, R, T, B)
+	Progress indicator
+		Scrollbar type
+		Footer height
+		Footer color
+		Show TOC marks
+		Show clock
+		Show battery level
+		Show page number
+		Font family
+	Display
+		Screen brightness adjustment
+		Prevent screen from sleeping
+	Scrolling
+		Touch screen scrolling
+		Double tap detection
+		Turn page with volume keys
+		Invert volume keys direction
+		Animation (Slide animation)
+		Animation speed
+		Horizontal scrolling
+	Dictionary 
+		Dictionary
+		Translator
+		Navigate over all words
+		Long tapping action
+	Images
+		Long tapping action
+		BG color for image
+	Cancel menu
+		Previous book
+		Last 3 positions
+		Back key action
+		Back key long press action
 		
-	
-	
-	
+================================================================
+
+Приоритеты:
+1) исправить баг с неотображающимся WebView
+2) Server-side синхронизация настроек FBReader (таблицы + методы чтения/записи)
+3) Client-side синхронизация настроек FBReader (меню выбора синхронизируемых настроек + методы общения с сервером)
+4, 5) аналогично для закладок

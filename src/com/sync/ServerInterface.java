@@ -9,33 +9,21 @@ import org.geometerplus.zlibrary.core.network.ZLNetworkException;
 import org.geometerplus.zlibrary.core.network.ZLNetworkManager;
 import org.json.JSONArray;
 
+import android.content.Context;
 
-public class ServerConversation{
+
+public class ServerInterface{
 	
-	public ServerConversation(URL host, String id, String signature){
-		setServerUrl(host);
-		this.myID = id;
-		this.mySignature = signature;
+	public ServerInterface(Context context, String id, String signature) 
+	throws MalformedURLException {
+		myID = id;
+		mySignature = signature;
+		myServerUrl = new URL(context.getString(R.string.host));
 	}
-	
 	
 	private URL myServerUrl;
 	private String myID;
-	private String mySignature;
-	
-	
-	private void setServerUrl(URL host){
-		myServerUrl = host;
-		if (host == null){
-			try{
-				myServerUrl = new URL("https://data.fbreader.org/sync/");
-			}
-			catch (MalformedURLException e){
-				//Default URL _is_ correct;
-			}
-		}
-	}
-	
+	private String mySignature;	
 	
 	public JSONArray uploadString(String string){
 		String hash = "";

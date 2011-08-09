@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+        xmlns:android="http://schemas.android.com/apk/res/android" android:key="main_screen">
+    <Preference android:key="auth_preference" android:summary="@string/sync_authenticate_summary" android:title="@string/sync_authenticate"></Preference><Preference android:key="force_sync" android:title="@string/force_sync" android:summary="@string/force_sync_summary"></Preference><PreferenceCategory android:key="sync_preferences" android:title="Plugin settings"><CheckBoxPreference android:title="@string/autosync" android:summary="@string/autosync_verbose" android:key="auto_sync" /><PreferenceScreen android:title="FBReader options synchronization settings" android:key="synk_settings_pref"></PreferenceScreen><PreferenceScreen android:title="Bookmarks synchronization settings" android:key="sync_bookmarks_pref">
+            
+        
+        </PreferenceScreen>
+    <EditTextPreference android:summary="@string/sync_device_name_summary" android:key="sync_device_name" android:title="@string/sync_device_name"></EditTextPreference>
+    
+</PreferenceCategory><PreferenceCategory android:key="about_section" android:title="Misc.">
+    <Preference android:key="about_action" android:title="About plugin"></Preference>
+</PreferenceCategory>
+    
+    
+</PreferenceScreen> 

@@ -1,15 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Synchronization</string>
-    <string name="sync_menu_item">Options synchronization</string>
+    <string name="sync_menu_item">Synchronization</string>
     <string name="upload_button">Upload data to server</string>
     <string name="download_button">Download data from server</string>
-    <string name="auth_button_authenticate">Authenticate with Google OpenID</string>
+    <string name="sync_authenticate">Authenticate</string>
     <string name="auth_button_logout">Logout</string>
     <string name="auth_failed">Authentication failed.</string>
     <string name="auth_failed_server">Authentication failed due to server error. Please retry later.</string>
     <string name="internal_error">Internal error: </string>
     <string name="server_error">Server communication error.</string>
+    <string name="autosync">Synchronize automatically</string>
+    <string name="autosync_verbose">Perform synchronization every time the program starts.</string>
+    <string name="force_sync">Force synchronization</string>
+    <string name="sync_settings">Synchronization settings</string>
+    <string name="force_sync_summary">Synchronize now</string>
+    <string name="sync_authenticate_summary">Authenticate with Google OpenID</string>
+    <string name="sync_device_name">Device name</string>
+    <string name="sync_device_name_summary">Unique name for this device</string>
+    <string name="sync_logout">Logout</string>
+    <string name="sync_logout_summary">Cancel current authentication</string>
+    <string name="settings_filename">FBSYNC_SETTINGS</string>
+    <string name="settings_auth">AUTH</string>
+    <string name="settings_id">ID</string>
+    <string name="settings_sig">SIG</string>
+    <string name="host">https://data.fbreader.org/sync/</string>
     
     
 </resources>
