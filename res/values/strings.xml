@@ -25,6 +25,7 @@
     <string name="settings_id">ID</string>
     <string name="settings_sig">SIG</string>
     <string name="host">https://data.fbreader.org/sync/</string>
+    <string name="sync_authentication">Authentication</string>
     
     
 </resources>

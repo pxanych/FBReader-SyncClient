@@ -4,7 +4,7 @@
 	<uses-permission android:name="android.permission.WAKE_LOCK" />
 	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-	<application android:label="@string/app_name">
+	<application android:label="@string/app_name" android:debuggable="true">
 		<receiver android:name=".PluginInfo" android:enabled="true">
 			<intent-filter>				
 				<action android:name="android.fbreader.action.plugin.REGISTER" />
@@ -14,8 +14,9 @@
 		</receiver>
 		<activity 
 			android:name=".SyncAuth" 
-			android:label="@string/app_name" 
-			android:theme="@android:style/Theme.Dialog">
+			android:label="@string/sync_authentication"
+			android:theme="@android:style/Theme.Dialog"
+			>
 			<intent-filter>
 				<action android:name="android.intent.action.VIEW" />
 				<category android:name="android.intent.category.DEFAULT" />

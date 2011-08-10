@@ -2,10 +2,8 @@ package com.sync;
 
 import java.net.MalformedURLException;
 
-import android.app.Dialog;
-import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.DialogInterface.OnDismissListener;
 import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
 import android.preference.Preference;
@@ -39,7 +37,7 @@ public class MainScreen extends PreferenceActivity {
 			authPreference.setOnPreferenceClickListener(new LogoutListener());
 		} else {
 			authPreference.setTitle(R.string.sync_authenticate);
-			authPreference.setTitle(R.string.sync_authenticate_summary);
+			authPreference.setSummary(R.string.sync_authenticate_summary);
 			authPreference.setOnPreferenceClickListener(new AuthListener());
 		}
 		forceSyncPreference.setEnabled(authentiacated);
@@ -49,9 +47,10 @@ public class MainScreen extends PreferenceActivity {
 	protected void ensureAuthentication() {
 		SharedPreferences settings = getPreferences(MODE_PRIVATE);
 		if (settings.getBoolean(getString(R.string.settings_auth), false) == false) {
-			Dialog authDialog = new SyncAuth(this, new OnSyncAuthDismissListener());
-			authDialog.setTitle("auth dialog");
-			authDialog.show();
+			Intent i = new Intent(Intent.ACTION_VIEW);
+			i.addCategory(Intent.CATEGORY_BROWSABLE);
+			i.addCategory(Intent.CATEGORY_DEFAULT);
+			startActivityForResult(i, 1);
 		} else if (myServerInterface == null) {
 			try {
 				String id = settings.getString(getString(R.string.settings_id), null);
@@ -65,6 +64,32 @@ public class MainScreen extends PreferenceActivity {
 				Toast.makeText(this, "host URL is malformed", Toast.LENGTH_SHORT).show();
 			}								
 		}
+	}
+	
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		if (requestCode == 1) {
+			if (resultCode == RESULT_OK) {
+				Editor editor = getPreferences(MODE_PRIVATE).edit();
+				Boolean auth_ok = data.getBooleanExtra(
+									getString(R.string.settings_auth), 
+									false
+									);
+				if(auth_ok) {
+					editor.putString(
+							getString(R.string.settings_id), 
+							data.getStringExtra(getString(R.string.settings_id))
+							);
+					editor.putString(
+							getString(R.string.settings_sig), 
+							data.getStringExtra(getString(R.string.settings_sig))
+							);
+				}
+				editor.putBoolean(getString(R.string.settings_auth), auth_ok);
+				setGUIState(auth_ok);
+			}
+		}
+		super.onActivityResult(requestCode, resultCode, data);
 	}
 	
 	// TODO: tag - authenticate
@@ -83,38 +108,6 @@ public class MainScreen extends PreferenceActivity {
 			editor.putBoolean(getString(R.string.settings_auth), false);
 			editor.commit();
 			return true;
-		}
-	}
-	//
-	
-	private class OnSyncAuthDismissListener implements OnDismissListener {
-		public void onDismiss(DialogInterface dialog) {
-			SyncAuth authDialog = (SyncAuth)dialog;
-			if (authDialog.myAuthOk) {
-				SharedPreferences settings = getPreferences(MODE_PRIVATE);
-				Editor editor = settings.edit();
-				editor.putString(getString(R.string.settings_id), authDialog.myID);
-				editor.putString(getString(R.string.settings_sig), authDialog.mySIG);
-				try {
-					myServerInterface = new ServerInterface(
-							getApplicationContext(), 
-							authDialog.myID, 
-							authDialog.mySIG
-							);
-					editor.putBoolean(getString(R.string.settings_auth), true);
-					// TODO: tag - authenticate
-					setGUIState(true);
-					//
-				}
-				catch (MalformedURLException e) {
-					Toast.makeText(
-							getApplicationContext(),
-							"host URL is malformed",
-							Toast.LENGTH_SHORT
-							).show();
-				}
-				editor.commit();
-			}
 		}
 	}
 }
