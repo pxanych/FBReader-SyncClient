@@ -3,20 +3,24 @@
 ----------------------------------------------------------------
 
 Данные на сервере: 
-	- таблица books_<ID> со следующими полями:
-		1) book_id (идентификатор книги - хеш)
-		2) device_name (назначается сервером каждому устройству)
+	- таблица books со следующими полями:
+		1) id (идентификатор Google OpenID)
+		2) book_id (идентификатор книги - хеш)
+		3) device_name (назначается сервером каждому устройству)
 
-	- таблица updates_<ID>:
-		1) device_name
-		2) scheduled_update_timestamp (последний раз, когда device_name выполнял scheduled_update)
+	- таблица updates:
+		1) id
+		2) device_name
+		3) scheduled_update_timestamp (последний раз, когда device_name выполнял scheduled_update)
 
-	- таблица current_positions_<ID>:
-		1) book_id 
+	- таблица current_positions:
+		1) id
+		2) book_id 
 		3) server_text_position
 		4) server_timestamp (время, когда плагином было получено значение text_position)
 		
 Данные плагина:
+	- свой Google OpenID
 	- local_scheduled_update_timestamp (время начала scheduled_update)
 	- список current_positions (в каждом элементе списка хранится):
 		1) book_id
@@ -35,7 +39,7 @@ server-->client:
 		     плагин выставляет local_text_position, присланный сервером и обновляет свой список current_positions
 		1.b) server_timestamp < local_timestamp:
 		     плагин ничего не делает
-	2) Если в таблице current_positions_<ID> не окажется строки с таким значением book_id - сервер вернёт пустой ответ, 
+	2) Если в таблице current_positions не окажется строки с таким значением book_id - сервер вернёт пустой ответ, 
 	     а плагин не будет предпринимать каких-либо автоматических действий по server-->client синхронизации до следующего открытия книги.
 	3) При большой задержке ответа сервера плагин проверит свой список current_positions на наличие text_position с более свежим local_timestamp и,
 	     если таковой найдётся - выставит новую позицию.		
@@ -44,14 +48,14 @@ server-->client:
 
 client-->server:
 	При закрытии книги/уходе FBReader в backgroung плагин получает информацию о book_id и text_position, генерирует timestamp, а затем сохраняет всё  в свой список current_positions.
-	Также клиент отправляет серверу запрос на обновление таблицы current_positions_<ID> с параметрами device_name, book_id, text_position и timestamp
+	Также клиент отправляет серверу запрос на обновление таблицы current_positions с параметрами id, device_name, book_id, text_position и timestamp
 
 ----------------------------------------------------------------
 
 scheduled_update:
 
 	1) По таймауту плагин запрашивает у сервера scheduled_update для своего device_name.
-	2) Сервер отправит клиенту scheduled_update_timestamp и список из (book_id, server_text_position, server_timestamp) для каждой книги, которая:
+	2) Сервер отправит плагину scheduled_update_timestamp и список из (book_id, server_text_position, server_timestamp) для каждой книги, которая:
 		a) есть на данном device_name
 		b) для которой есть сохранённая server_text_position
 		c) server_timestamp которой больше scheduled_update_timestamp 
