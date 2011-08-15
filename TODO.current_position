@@ -3,29 +3,30 @@
 ----------------------------------------------------------------
 
 Данные на сервере: 
-	- таблица books со следующими полями:
-		1) id (идентификатор Google OpenID)
-		2) book_id (идентификатор книги - хеш)
-		3) device_name (назначается сервером каждому устройству)
-
-	- таблица updates:
-		1) id
-		2) device_name
-		3) scheduled_update_timestamp (последний раз, когда device_name выполнял scheduled_update)
-
-	- таблица current_positions:
-		1) id
-		2) book_id 
-		3) server_text_position
-		4) server_timestamp (время, когда плагином было получено значение text_position)
+	- таблица user:
+		1) user_id
+		2) google_identifier (OpenID)
+		3) signature
+		
+	- таблица book со следующими полями:
+		1) book_id
+		2) user_id (foreign key из таблицы user)
+		3) book_hash
+		4) title
+		5) author
+		6) current_text_position
+		7) update_timestamp
 		
 Данные плагина:
-	- свой Google OpenID
-	- local_scheduled_update_timestamp (время начала scheduled_update)
-	- список current_positions (в каждом элементе списка хранится):
-		1) book_id
-		2) local_text_position (на момент закрытия книги/остановки FBReader)
-		3) local_timestamp (время, когда плагином было получено значение text_position)
+	- свои Google OpenID
+	- Signature
+	- список books (в каждом элементе списка хранится):
+		1) book_hash (может быть пустым, если ещё не посчитан)
+		2) title
+		3) author
+		4) local_text_position (на момент закрытия книги/остановки FBReader)
+		5) local_timestamp (время, когда плагином было получено значение text_position)
+	- список to_synchronize из ссылок на элементы books, которые надо отправить на сервер при следующем scheduled_update
 
 ----------------------------------------------------------------
 
@@ -33,39 +34,35 @@ server-->client:
 Условия начала server-->client синхронизации:
 	при открытии книги
 	  
-Клиент отправит серверу запрос на получение текущей позиции в книге с параметрами ID, device_name и book_id
-	1) Сервер отправит клиенту book_id, server_text_position и server_timestamp:
-		1.a) server_timestamp > local_timestamp:
-		     плагин выставляет local_text_position, присланный сервером и обновляет свой список current_positions
+Клиент отправит серверу запрос на получение текущей позиции в книге с параметрами ID, title, author[, hash]
+	1) Сервер отправит клиенту currents_text_position и update_timestamp:
+		1.a) update_timestamp > local_timestamp:
+		     плагин выставляет local_text_position, присланный сервером и обновляет свой список books
 		1.b) server_timestamp < local_timestamp:
 		     плагин ничего не делает
-	2) Если в таблице current_positions не окажется строки с таким значением book_id - сервер вернёт пустой ответ, 
-	     а плагин не будет предпринимать каких-либо автоматических действий по server-->client синхронизации до следующего открытия книги.
-	3) При большой задержке ответа сервера плагин проверит свой список current_positions на наличие text_position с более свежим local_timestamp и,
-	     если таковой найдётся - выставит новую позицию.		
+	2) Если на сервере в таблице book не окажется строки с таким значением title, author и hash - сервер вернёт пустой ответ, 
+	   а плагин не будет предпринимать каких-либо автоматических действий по server-->client синхронизации до следующего открытия книги.
+	3) При большой задержке ответа сервера плагин проверит свой список books на наличие local_text_position для открываемой книги и,
+	   если таковая найдётся - выставит новую позицию.		
 
 ----------------------------------------------------------------
 
 client-->server:
-	При закрытии книги/уходе FBReader в backgroung плагин получает информацию о book_id и text_position, генерирует timestamp, а затем сохраняет всё  в свой список current_positions.
-	Также клиент отправляет серверу запрос на обновление таблицы current_positions с параметрами id, device_name, book_id, text_position и timestamp
+	1) При закрытии книги/уходе FBReader в backgroung плагин получает от FBReader информацию о
+	   title, author и text_position, генерирует timestamp, а затем сохраняет всё  в свой список books.
+	2) Также клиент отправляет серверу запрос на обновление таблицы book с параметрами id, title, author, [hash,] text_position и timestamp
 
 ----------------------------------------------------------------
 
 scheduled_update:
 
-	1) По таймауту плагин запрашивает у сервера scheduled_update для своего device_name.
-	2) Сервер отправит плагину scheduled_update_timestamp и список из (book_id, server_text_position, server_timestamp) для каждой книги, которая:
-		a) есть на данном device_name
-		b) для которой есть сохранённая server_text_position
-		c) server_timestamp которой больше scheduled_update_timestamp 
-	3) Плагин обновит свой список current_positions в соответствии с timestamp'ами
-	4) Плагин отправляет серверу:
-		- подтверждение того, что он обновил свою таблицу current_positions
-		- новое значение local_scheduled_update_timestamp 
-		- всё text_positions, timestamp которых больше scheduled_update_timestamp
-	5) Сервер обновляет таблицы books_<ID>, updates_<ID>, current_positions_<ID>
-	6) Сервер подтверждает получение 4) и успешное завершение 5)
-	
-Если в какой-то из моментов потеряется связь между сервером и клиентом - не произойдёт никакой порчи/потери данных. 
-Единственный побочный эффект этого - при следующем scheduled_update могут передаваться лишние данные, которые будут проигнорированы.
+	1) По таймауту плагин запрашивает у сервера список текущих позиций для своего id
+		*плагин может явно указать title, author, hash книг, для которых сервер должен выслать text_position
+	2) Сервер отправит плагину и список из (title, author, [hash,] current_text_position, server_timestamp) для указанных плагином книг
+		*если плагин явно не указал список книг, сервер отправит ему данные для N книг с самым большим timestamp 
+	3) Плагин обновит свой список books в соответствии с timestamp'ами
+	4) Если у плагина в списке to_synchronize есть какие-либо элементы:
+		4.1) он отправит их серверу (title, author, hash, text_position, timestamp)
+		4.2) Сервер обновляет таблицу book в соответствии с timestamp'ами и подтверждает успешное получение информации
+		4.3) Плагин очищает свой список to_synchronize, если сервер сообщил об успешной синхронизации
+		
