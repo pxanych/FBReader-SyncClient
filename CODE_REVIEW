@@ -3,6 +3,7 @@ code review:
 * res/values/strings.xml:
    ** здесь должны лежать строки, зависимые от языка; к таким вряд ли относится строка FBSYNC_SETTINGS (и другие подобные)
    ** с другой стороны в коде есть строки, видимые пользователю, например "host URL is malformed" в MainScreen.java -- они как раз должны быть в strings.xml
+* стоит обойтись без ZLNetworkRequest -- он не делает почти ничего, а тянет за собой кучу кода из fbreader
 
 user experience:
 
