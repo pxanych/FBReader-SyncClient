@@ -2,30 +2,28 @@
 <resources>
     <string name="app_name">Synchronization</string>
     <string name="sync_menu_item">Synchronization</string>
-    <string name="upload_button">Upload data to server</string>
-    <string name="download_button">Download data from server</string>
     <string name="sync_authenticate">Authenticate</string>
-    <string name="auth_button_logout">Logout</string>
     <string name="auth_failed">Authentication failed.</string>
     <string name="auth_failed_server">Authentication failed due to server error. Please retry later.</string>
     <string name="internal_error">Internal error: </string>
     <string name="server_error">Server communication error.</string>
-    <string name="autosync">Synchronize automatically</string>
-    <string name="autosync_verbose">Perform synchronization every time the program starts.</string>
-    <string name="force_sync">Force synchronization</string>
-    <string name="sync_settings">Synchronization settings</string>
-    <string name="force_sync_summary">Synchronize now</string>
     <string name="sync_authenticate_summary">Authenticate with Google OpenID</string>
-    <string name="sync_device_name">Device name</string>
-    <string name="sync_device_name_summary">Unique name for this device</string>
     <string name="sync_logout">Logout</string>
     <string name="sync_logout_summary">Cancel current authentication</string>
-    <string name="settings_filename">FBSYNC_SETTINGS</string>
-    <string name="settings_auth">AUTH</string>
-    <string name="settings_id">ID</string>
-    <string name="settings_sig">SIG</string>
-    <string name="host">https://data.fbreader.org/sync/</string>
     <string name="sync_authentication">Authentication</string>
-    
-    
+	<string name="account_label">FBReader Sync plugin</string>
+	<string name="account_name">FBReader Sync plugin account</string>
+    <string name="auth_start_button_text">Continue</string>
+    <string name="auth_start_about_openid">&lt;a href=\&quot;http://www.google.com\&quot;&gt;What is OpenID?&lt;/a&gt;</string>
+    <string name="auth_start_screen_description">Add FBReader Sync plugin account</string>
+    <string name="auth_start_about_account">TODO: desrcription</string>
+    <string name="auth_one_account">Only one account allowed</string>
+    <string name="current_positions">Current positions</string>
+    <string name="bookmarks">Bookmarks</string>
+    <string name="settings">FBReader settings sync</string>
+    <string name="synchronized_data_and_schedule">Synchronized data &amp; schedule</string>
+    <string name="synchronization_schedule">Synchronization schedule</string>
+    <string name="syncronized_settings">Syncronized FBReader settings</string>
+    <string name="operation_cancelled">Operation cancelled</string>
+    <string name="bad_server_response">Bad server response.</string>
 </resources>

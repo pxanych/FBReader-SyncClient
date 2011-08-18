@@ -1,0 +1,8 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+	<PreferenceCategory android:title="General Settings" />
+	<PreferenceScreen
+    android:key="fbsettings_chooser" android:title="@string/syncronized_settings">
+        <intent
+        android:action="com.sync.settings_pref" android:targetClass="com.sync.FBSettingsChooser" android:targetPackage="com.sync"/>
+    </PreferenceScreen>
+</PreferenceScreen>

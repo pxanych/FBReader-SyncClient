@@ -1,58 +1,123 @@
 package com.sync;
 
+import android.accounts.Account;
+import android.accounts.AccountAuthenticatorResponse;
+import android.accounts.AccountManager;
 import android.app.Activity;
-import android.content.Intent;
+import android.content.ContentResolver;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.Html;
+import android.text.method.LinkMovementMethod;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.View.OnClickListener;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.widget.Toast;
+import android.widget.Button;
+import android.widget.TextView;
 
 public class SyncAuth extends Activity {
-	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.sync_auth);
+		if (getIntent().getExtras() == null){
+			finish();
+		}
+		
+		setContentView(R.layout.auth_start);
+		
+		TextView about_openid = (TextView)findViewById(R.id.about_openid);
+		about_openid.setText(Html.fromHtml(getString(R.string.auth_start_about_openid)));
+		about_openid.setMovementMethod(LinkMovementMethod.getInstance());
+		
+		Button buttonContinue = (Button)findViewById(R.id.button_continue);
+		buttonContinue.setOnClickListener(
+				new OnClickListener() {
+					public void onClick(View v) {
+						performAuth();
+					}
+				}
+			);
+	}
+	
+	
+    private void performAuth() {
+    	setContentView(R.layout.auth);
 		WebView browserView = (WebView)findViewById(R.id.browserView);
+		/////////////////////////////////////////////////////////
+		// http://code.google.com/p/android/issues/detail?id=7189
+		browserView.requestFocus(View.FOCUS_DOWN);
+		browserView.setOnTouchListener(new View.OnTouchListener() {
+            public boolean onTouch(View v, MotionEvent event) {
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                    case MotionEvent.ACTION_UP:
+                        if (!v.hasFocus()) {
+                            v.requestFocus();
+                        }
+                        break;
+                }
+                return false;
+            }
+        });
+		/////////////////////////////////////////////////////////
 		browserView.setNetworkAvailable(true);
 		browserView.setWebViewClient(new SyncWebViewClient());
 		browserView.getSettings().setJavaScriptEnabled(true);
-		browserView.loadUrl("https://data.fbreader.org/sync/?sync_respondtype=url");
-	}
+		browserView.loadUrl(getString(R.string.auth_url));
+    }
 	
-	private void completeAuthentication(Uri response) {
-		Intent result = new Intent();
-    	String query = response.getQuery();
+    
+	private void completeAuthentication(Uri reply) {
+		Bundle extras = getIntent().getExtras();
+		AccountAuthenticatorResponse response = 
+				extras.getParcelable(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE);
+		String query = reply.getQuery();
     	try{
     		if (query == null) {
-    			Toast.makeText(
-    							this, 
-    							"No result query in server response.",
-    							Toast.LENGTH_SHORT
-    						).show();
     			query = "";
     		}
 			String[] args = query.split("&");
 			for (int i = 0; i < args.length; ++i) {
 				args[i] = args[i].split("=", 2)[1];
 			}
+			AccountManager accountManager = AccountManager.get(this);
 			if("1".equals(args[0])) {
-				result.putExtra(getString(R.string.settings_auth), true);
-				result.putExtra(getString(R.string.settings_id), args[1]);
-				result.putExtra(getString(R.string.settings_sig), args[2]);
+				addAccount(accountManager, args[1], args[2]);
 			} else {
-				result.putExtra(getString(R.string.settings_auth), false);
+				response.onError(
+						AccountManager.ERROR_CODE_CANCELED, 
+						getString(R.string.operation_cancelled)
+						);		
 			}
     	}
     	catch(ArrayIndexOutOfBoundsException e) {
-    		result.putExtra(getString(R.string.settings_auth), false);
-    		Toast.makeText(this, R.string.auth_failed_server, Toast.LENGTH_SHORT).show();
+    		response.onError(
+    				AccountManager.ERROR_CODE_INVALID_RESPONSE, 
+    				getString(R.string.bad_server_response)
+    				);
     	}
-    	setResult(RESULT_OK, result);
+    	setResult(RESULT_OK);
     	finish();
 	}
-
+	
+	
+	private Boolean addAccount(AccountManager accountManager, String id, String signature) {
+		Account account = new Account(
+				getString(R.string.account_name), 
+				getString(R.string.account_type)
+				);
+		Bundle userData = new Bundle();
+		userData.putString(getString(R.string.settings_id), id);
+		userData.putString(getString(R.string.settings_sig), signature);
+		ContentResolver.setIsSyncable(account, getString(R.string.authority_positions), 1);
+		ContentResolver.setIsSyncable(account, getString(R.string.authority_bookmarks), 1);
+		ContentResolver.setIsSyncable(account, getString(R.string.authority_settings), 1);
+		return accountManager.addAccountExplicitly(account, "", userData);
+	}
+	
+	
     private class SyncWebViewClient extends WebViewClient {
     	@Override
 	    public boolean shouldOverrideUrlLoading(WebView view, String url) {
@@ -60,9 +125,10 @@ public class SyncAuth extends Activity {
 		        view.loadUrl(url);
 		        return true;
 	    	} else {
+	    		view.setVisibility(View.INVISIBLE);
 	    		completeAuthentication(Uri.parse(url));
 	    		return false;
 	    	}
 	    }
-	}	
+	}
 }

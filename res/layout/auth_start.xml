@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  android:orientation="vertical"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent">
+    <TextView android:textAppearance="?android:attr/textAppearanceMedium" android:text="TextView" android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/screen_description"></TextView>
+    <TextView android:textAppearance="?android:attr/textAppearanceSmall" android:text="TextView" android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/about_account"></TextView>
+    <TextView android:textAppearance="?android:attr/textAppearanceSmall" android:text="TextView" android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/about_openid"></TextView>
+    <Button android:layout_gravity="bottom" android:text="@string/auth_start_button_text" android:layout_height="wrap_content" android:layout_width="match_parent" android:id="@+id/button_continue"></Button>
+    
+</LinearLayout>

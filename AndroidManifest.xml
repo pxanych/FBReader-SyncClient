@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.sync" android:versionCode="1" android:versionName="1.0">
 	<uses-permission android:name="android.permission.INTERNET" />
-	<uses-permission android:name="android.permission.WAKE_LOCK" />
-	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+	<uses-permission android:name="android.permission.ACCOUNT_MANAGER"/>
+	<uses-permission android:name="android.permission.GET_ACCOUNTS"/>
+	<uses-permission android:name="android.permission.AUTHENTICATE_ACCOUNTS"/>
+	<uses-permission android:name="android.permission.WRITE_SYNC_SETTINGS"/>
 	<application android:label="@string/app_name" android:debuggable="true">
 		<receiver android:name=".PluginInfo" android:enabled="true">
 			<intent-filter>				
@@ -15,13 +17,12 @@
 		<activity 
 			android:name=".SyncAuth" 
 			android:label="@string/sync_authentication"
-			android:theme="@android:style/Theme.Dialog"
 			>
-			<intent-filter>
-				<action android:name="android.intent.action.VIEW" />
-				<category android:name="android.intent.category.DEFAULT" />
-				<category android:name="android.intent.category.BROWSABLE" />
-			</intent-filter>
+		</activity>
+		<activity 
+			android:name=".FBSettingsChooser" 
+			android:label="@string/sync_authentication"
+			>
 		</activity>
 		<activity android:name=".MainScreen" android:label="@string/app_name" android:enabled="true">
 			<intent-filter>
@@ -35,5 +36,74 @@
 				<data android:host="sync.com" android:scheme="http" android:path="/sync" />
 			</intent-filter>
 		</activity>
+		<service android:name="service.FBSyncAccountAuthenticatorService"
+ 			android:exported="true" android:process=":auth">
+ 			<intent-filter>
+  				<action android:name="android.accounts.AccountAuthenticator" />
+ 			</intent-filter>
+ 			<meta-data 
+ 			android:name="android.accounts.AccountAuthenticator" 
+ 			android:resource="@xml/authenticator"
+ 			/>
+		</service>
+		
+		<service android:name="service.FBSyncPositionsService"
+			android:exported="true">
+ 			<intent-filter>
+  				<action android:name="android.content.SyncAdapter"/>
+ 			</intent-filter>
+ 			<meta-data 
+ 			android:name="android.content.SyncAdapter"
+ 			android:resource="@xml/fbdata_positions_sync" 
+ 			/>
+		</service>
+		<service android:name="service.FBSyncBookmarksService"
+			android:exported="true">
+ 			<intent-filter>
+  				<action android:name="android.content.SyncAdapter"/>
+ 			</intent-filter>
+ 			<meta-data 
+ 			android:name="android.content.SyncAdapter"
+ 			android:resource="@xml/fbdata_bookmarks_sync" 
+ 			/>
+		</service>	
+		<service android:name="service.FBSyncSettingsService"
+			android:exported="true">
+ 			<intent-filter>
+  				<action android:name="android.content.SyncAdapter"/>
+ 			</intent-filter>
+ 			<meta-data 
+ 			android:name="android.content.SyncAdapter"
+ 			android:resource="@xml/fbdata_settings_sync" 
+ 			/>
+		</service>
+		
+		<provider android:authorities="@string/authority_positions"
+        android:enabled="true"
+        android:exported="true"
+        android:label="current positions"
+        android:name="service.FBSyncPositionsProvider"
+        android:syncable="true"
+        android:multiprocess="false">
+        </provider>
+        
+        <provider android:authorities="@string/authority_bookmarks"
+        android:enabled="true"
+        android:exported="true"
+        android:label="bookmarks"
+        android:name="service.FBSyncBookmarksProvider"
+        android:syncable="true"
+        android:multiprocess="false">
+        </provider>
+        
+        <provider android:authorities="@string/authority_settings"
+        android:enabled="true"
+        android:exported="true"
+        android:label="settings"
+        android:name="service.FBSyncSettingsProvider"
+        android:syncable="true"
+        android:multiprocess="false">
+        </provider>
+         
 	</application>
 </manifest> 

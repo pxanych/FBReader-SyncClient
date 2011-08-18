@@ -1,0 +1,8 @@
+<account-authenticator 
+xmlns:android="http://schemas.android.com/apk/res/android"
+android:accountType="@string/account_type"
+android:icon="@drawable/open_id"
+android:smallIcon="@drawable/open_id"
+android:label="@string/account_label"
+android:accountPreferences="@xml/account_preferences"
+/>
