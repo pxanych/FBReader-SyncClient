@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+  xmlns:android="http://schemas.android.com/apk/res/android" android:title="@string/synchronized_data">
+    <CheckBoxPreference android:title="@string/synchronize_positions" android:key="@string/checkbox_positions"></CheckBoxPreference>
+    <CheckBoxPreference android:key="@string/checkbox_bookmarks" android:title="@string/synchronize_bookmarks"></CheckBoxPreference>
+    <CheckBoxPreference android:title="@string/synchronize_settings" android:key="@string/checkbox_settings"></CheckBoxPreference>
+    
+</PreferenceScreen>

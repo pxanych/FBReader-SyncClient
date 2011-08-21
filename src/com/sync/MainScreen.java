@@ -12,7 +12,7 @@ public class MainScreen extends Activity {
 		super.onCreate(savedInstanceState);
 		Intent forward = null;
 		if (FBSyncAccountAuthenticatorService.accountExists(this)) {
-			forward = new Intent(android.provider.Settings.ACTION_SYNC_SETTINGS);
+			forward = new Intent(this, FBSettings.class);
 		} else {
 			forward = new Intent(android.provider.Settings.ACTION_ADD_ACCOUNT);
 		}

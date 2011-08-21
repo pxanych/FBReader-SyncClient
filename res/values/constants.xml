@@ -7,7 +7,13 @@
     <string name="settings_sig">SIG</string>
     <string name="host">https://data.fbreader.org/sync/</string>
     <string name="auth_url">https://data.fbreader.org/sync/?sync_respondtype=url</string>
+    <string name="api_url">https://data.fbreader.org/sync/sync_api_interface.php5</string>
     <string name="authority_positions">com.sync.fbdata.positions</string>
     <string name="authority_bookmarks">com.sync.fbdata.bookmarks</string>
     <string name="authority_settings">com.sync.fbdata.settings</string>
+    <string name="sync_position_to_server">com.sync.position_to_server</string>
+    <string name="sync_position_from_server">com.sync.position_from_server</string>
+    <string name="checkbox_settings">sync_settings</string>
+    <string name="checkbox_bookmarks">sync_bookmarks</string>
+    <string name="checkbox_positions">sync_positions</string>
 </resources>

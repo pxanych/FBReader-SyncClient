@@ -26,4 +26,8 @@
     <string name="syncronized_settings">Syncronized FBReader settings</string>
     <string name="operation_cancelled">Operation cancelled</string>
     <string name="bad_server_response">Bad server response.</string>
+    <string name="synchronize_settings">\FBReader settings</string>
+    <string name="synchronize_bookmarks">Bookmarks</string>
+    <string name="synchronize_positions">Read positions</string>
+    <string name="synchronized_data">Synchronized data</string>
 </resources>
