@@ -1,4 +1,4 @@
-package service;
+package com.sync.service;
 
 import com.sync.R;
 import com.sync.SyncAuth;

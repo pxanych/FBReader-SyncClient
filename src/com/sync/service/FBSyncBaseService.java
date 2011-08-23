@@ -1,4 +1,4 @@
-package service;
+package com.sync.service;
 
 import android.app.Service;
 import android.content.AbstractThreadedSyncAdapter;

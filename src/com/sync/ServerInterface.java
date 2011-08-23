@@ -10,7 +10,7 @@ import org.geometerplus.zlibrary.core.network.ZLNetworkException;
 import org.geometerplus.zlibrary.core.network.ZLNetworkManager;
 import org.json.JSONArray;
 
-import service.FBSyncPositionsProvider.Position;
+import com.sync.service.FBSyncPositionsProvider.Position;
 
 import android.content.Context;
 
@@ -18,11 +18,16 @@ import android.content.Context;
 public class ServerInterface{
 	
 	public ServerInterface(Context context, String id, String signature) 
-	throws MalformedURLException {
+			throws ServerInterfaceException {
 		myContext = context;
 		myID = id;
 		mySignature = signature;
-		myServerUrl = new URL(myContext.getString(R.string.host));
+		try {
+			myServerUrl = new URL(myContext.getString(R.string.host));
+		}
+		catch (MalformedURLException e) {
+			throw new ServerInterfaceException("Malformed URL", e);
+		}
 	}
 	
 	private URL myServerUrl;

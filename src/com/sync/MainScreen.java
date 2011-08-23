@@ -1,6 +1,6 @@
 package com.sync;
 
-import service.FBSyncAccountAuthenticatorService;
+import com.sync.service.FBSyncAccountAuthenticatorService;
 
 import android.app.Activity;
 import android.content.Intent;

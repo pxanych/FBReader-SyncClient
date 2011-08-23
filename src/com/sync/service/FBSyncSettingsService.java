@@ -1,4 +1,4 @@
-package service;
+package com.sync.service;
 
 import android.accounts.Account;
 import android.content.AbstractThreadedSyncAdapter;
@@ -8,20 +8,20 @@ import android.content.SyncResult;
 import android.os.Bundle;
 import android.util.Log;
 
-public class FBSyncPositionsService extends FBSyncBaseService {
+public class FBSyncSettingsService extends FBSyncBaseService {
 	
 	protected AbstractThreadedSyncAdapter getSyncAdapter() {
 		if (ourSyncAdapter == null) {
-			ourSyncAdapter = new FBSyncPositionsAdapter(this);
+			ourSyncAdapter = new FBSyncSettingsAdapter(this);
 		}
 		return ourSyncAdapter;
 	}
 
-	private class FBSyncPositionsAdapter extends AbstractThreadedSyncAdapter {
+	private class FBSyncSettingsAdapter extends AbstractThreadedSyncAdapter {
 		
 		//private Context myContext;
 		
-		public FBSyncPositionsAdapter(Context context) {
+		public FBSyncSettingsAdapter(Context context) {
 			super(context, true);
 			//myContext = context;
 		}
@@ -30,7 +30,9 @@ public class FBSyncPositionsService extends FBSyncBaseService {
 		public void onPerformSync(Account account, Bundle extras,
 				String authority, ContentProviderClient provider,
 				SyncResult syncResult) {
-			Log.i("FBSyncAdapter", "performSync: " + account.toString());
+			Log.i("FBSyncAdapter", this.getClass().getSimpleName() + 
+					" \nAccount: " + account.toString() + "\nAuthority:" + authority +
+					" \nBundle count: " + String.valueOf(extras.keySet().size()));
 		}
 	}
 

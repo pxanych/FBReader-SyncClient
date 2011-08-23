@@ -1,4 +1,4 @@
-package service;
+package com.sync.service;
 
 import android.accounts.Account;
 import android.content.AbstractThreadedSyncAdapter;
@@ -8,20 +8,20 @@ import android.content.SyncResult;
 import android.os.Bundle;
 import android.util.Log;
 
-public class FBSyncSettingsService extends FBSyncBaseService {
+public class FBSyncBookmarksService extends FBSyncBaseService {
 	
 	protected AbstractThreadedSyncAdapter getSyncAdapter() {
 		if (ourSyncAdapter == null) {
-			ourSyncAdapter = new FBSyncSettingsAdapter(this);
+			ourSyncAdapter = new FBSyncBookmarksAdapter(this);
 		}
 		return ourSyncAdapter;
 	}
 
-	private class FBSyncSettingsAdapter extends AbstractThreadedSyncAdapter {
+	private class FBSyncBookmarksAdapter extends AbstractThreadedSyncAdapter {
 		
 		//private Context myContext;
 		
-		public FBSyncSettingsAdapter(Context context) {
+		public FBSyncBookmarksAdapter(Context context) {
 			super(context, true);
 			//myContext = context;
 		}
@@ -30,7 +30,9 @@ public class FBSyncSettingsService extends FBSyncBaseService {
 		public void onPerformSync(Account account, Bundle extras,
 				String authority, ContentProviderClient provider,
 				SyncResult syncResult) {
-			Log.i("FBSyncAdapter", "performSync: " + account.toString());
+			Log.i("FBSyncAdapter", this.getClass().getSimpleName() + 
+					" \nAccount: " + account.toString() + "\nAuthority:" + authority +
+					" \nBundle count: " + String.valueOf(extras.keySet().size()));
 		}
 	}
 
