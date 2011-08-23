@@ -39,6 +39,8 @@ import org.apache.http.params.*;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.BasicHttpContext;
 
+import android.os.Debug;
+
 public class ZLNetworkManager {
 	private static ZLNetworkManager ourManager;
 

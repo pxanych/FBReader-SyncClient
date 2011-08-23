@@ -3,8 +3,8 @@ package com.sync.service;
 import java.util.HashMap;
 
 import org.geometerplus.android.fbreader.api.TextPosition;
-
 import com.sync.service.FBData.Book;
+
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.UriMatcher;
@@ -29,6 +29,7 @@ public class FBSyncPositionsProvider extends FBSyncBaseContentProvider {
 	}
 	
 	private FBData myFBData;
+	
 	
 
 	@Override
@@ -90,14 +91,35 @@ public class FBSyncPositionsProvider extends FBSyncBaseContentProvider {
 		if (ourUriMatcher.match(uri) == -1) {
 			throw new IllegalArgumentException("Unknown uri:" + uri);	
 		}
+		// TODO update on new_timestamp > old_timestamp
+		String[] projection = new String[] {
+				Book.HASH,
+				Book.TIMESTAMP
+		};
 		
-		SQLiteDatabase db = myFBData.myDatabaseHelper.getWritableDatabase();
-		int count = db.update(Book.TABLE, values, where, whereArgs);
-		
+		int count = 0;
+		Boolean canPerform = true;
+		canPerform &= values.containsKey(Book.HASH);
+		canPerform &= values.containsKey(Book.TIMESTAMP);
+		canPerform &= values.containsKey(Book.POSITION);
+
+		if (canPerform) {
+			Integer newTimestamp = values.getAsInteger(Book.TIMESTAMP);
+			String hash = values.getAsString(Book.HASH);
+			
+			Cursor bookToUpdate = query(Book.CONTENT_URI, projection, 
+					Book.HASH + " = " + hash, null, null);
+			if (bookToUpdate.getCount() > 0) {
+				Integer oldTimestamp = bookToUpdate.getInt(bookToUpdate.getColumnIndex(Book.TIMESTAMP));
+				if (newTimestamp > oldTimestamp) {
+					SQLiteDatabase db = myFBData.myDatabaseHelper.getWritableDatabase();
+					count = db.update(Book.TABLE, values, where, whereArgs);
+				}
+			}
+		}
 		getContext().getContentResolver().notifyChange(uri, null);
 		return count;
 	}
-	
 	
 	@Override
 	public int delete(Uri uri, String where, String[] whereArgs) {
