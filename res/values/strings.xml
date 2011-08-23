@@ -27,4 +27,6 @@
     <string name="synchronize_bookmarks">Bookmarks</string>
     <string name="synchronize_positions">Read positions</string>
     <string name="synchronized_data">Synchronized data</string>
+    <string name="openid_main">TODO: openid_main en</string>
+    <string name="openid_summary">TODO: openid_summary en</string>
 </resources>

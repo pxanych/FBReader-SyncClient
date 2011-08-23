@@ -27,4 +27,7 @@
     <string name="synchronize_bookmarks">Закладки</string>
     <string name="synchronize_positions">Текущие позиции</string>
     <string name="synchronized_data">Синхронизируемые данные</string>
+    <string name="openid_main">Создать аккаунт FBReader Sync plugin с использованием Google OpenID</string>
+    <string name="openid_summary">Вместо того, чтобы регистрироваться на нашем сервере, Вы можете использовать свой Google-аккаунт.
+    После нажатия на кнопку "Далее" Вы будете перенаправлены на страницу Google, где можно будет выполнить авторизацию.</string>
 </resources>

@@ -27,6 +27,7 @@ public class SyncAuth extends Activity {
 		
 		setContentView(R.layout.auth_start);
 		
+		
 		TextView about_openid = (TextView)findViewById(R.id.about_openid);
 		about_openid.setText(Html.fromHtml(getString(R.string.auth_start_about_openid)));
 		about_openid.setMovementMethod(LinkMovementMethod.getInstance());
