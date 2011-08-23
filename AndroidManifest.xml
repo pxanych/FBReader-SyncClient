@@ -101,7 +101,7 @@
 		<provider android:authorities="@string/authority_positions"
         android:enabled="true"
         android:exported="true"
-        android:label="current positions"
+        android:label="@string/synchronize_positions"
         android:name=".service.FBSyncPositionsProvider"
         android:syncable="true"
         android:multiprocess="false">
@@ -110,7 +110,7 @@
         <provider android:authorities="@string/authority_bookmarks"
         android:enabled="true"
         android:exported="true"
-        android:label="bookmarks"
+        android:label="@string/synchronize_bookmarks"
         android:name=".service.FBSyncBookmarksProvider"
         android:syncable="true"
         android:multiprocess="false">
@@ -119,7 +119,7 @@
         <provider android:authorities="@string/authority_settings"
         android:enabled="true"
         android:exported="true"
-        android:label="settings"
+        android:label="@string/synchronize_settings"
         android:name=".service.FBSyncSettingsProvider"
         android:syncable="true"
         android:multiprocess="false">

@@ -13,7 +13,6 @@ import org.json.JSONArray;
 import com.sync.service.FBSyncPositionsProvider.Position;
 
 import android.content.Context;
-import android.os.Debug;
 
 
 public class ServerInterface{

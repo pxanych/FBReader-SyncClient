@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Синхронизация</string>
+    <string name="sync_menu_item">Синхронизация</string>
+    <string name="auth_failed">Ошибка авторизации</string>
+    <string name="auth_failed_server">Сбой авторизции из-за ошибки на сервере. Повторите авторизацию позже.</string>
+    <string name="internal_error">Внитренняя ошибка: </string>
+    <string name="server_error">Ошибка взаимодействия с сервером.</string>
+    <string name="sync_authenticate_summary">Авторизация с помощью Google OpenID</string>
+    <string name="sync_authentication">Авторизация</string>
+	<string name="account_label">FBReader Sync plugin</string>
+	<string name="account_name">Аккаунт FBReader Sync plugin</string>
+    <string name="auth_start_button_text">Далее</string>
+    <string name="auth_start_about_openid">&lt;a href=\&quot;http://www.google.com\&quot;&gt;Что такое OpenID?&lt;/a&gt;</string>
+    <string name="auth_start_screen_description">Добавить аккаунт FBReader Sync plugin</string>
+    <string name="auth_start_about_account">TODO: desrcription</string>
+    <string name="auth_one_account">Разрешён только один аккаунт</string>
+    <string name="current_positions">Текущие позиции</string>
+    <string name="bookmarks">Закладки</string>
+    <string name="settings">Настройки</string>
+    <string name="synchronized_data_and_schedule">Синхронизируемые данные и расписание</string>
+    <string name="synchronization_schedule">Расписание синхронизации</string>
+    <string name="syncronized_settings">Синхронизируемые настройки FBReader</string>
+    <string name="operation_cancelled">Операция отменена</string>
+    <string name="bad_server_response">Неверный ответ сервера.</string>
+    <string name="synchronize_settings">Настройки FBReader</string>
+    <string name="synchronize_bookmarks">Закладки</string>
+    <string name="synchronize_positions">Текущие позиции</string>
+    <string name="synchronized_data">Синхронизируемые данные</string>
+</resources>

@@ -2,14 +2,11 @@
 <resources>
     <string name="app_name">Synchronization</string>
     <string name="sync_menu_item">Synchronization</string>
-    <string name="sync_authenticate">Authenticate</string>
     <string name="auth_failed">Authentication failed.</string>
     <string name="auth_failed_server">Authentication failed due to server error. Please retry later.</string>
     <string name="internal_error">Internal error: </string>
     <string name="server_error">Server communication error.</string>
     <string name="sync_authenticate_summary">Authenticate with Google OpenID</string>
-    <string name="sync_logout">Logout</string>
-    <string name="sync_logout_summary">Cancel current authentication</string>
     <string name="sync_authentication">Authentication</string>
 	<string name="account_label">FBReader Sync plugin</string>
 	<string name="account_name">FBReader Sync plugin account</string>

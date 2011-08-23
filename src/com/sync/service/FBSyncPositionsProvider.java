@@ -30,8 +30,6 @@ public class FBSyncPositionsProvider extends FBSyncBaseContentProvider {
 	
 	private FBData myFBData;
 	
-	
-
 	@Override
 	public String getType(Uri uri) {
 		switch (ourUriMatcher.match(uri)) {

@@ -114,6 +114,10 @@ public class SyncAuth extends Activity {
 		ContentResolver.setIsSyncable(account, getString(R.string.authority_positions), 1);
 		ContentResolver.setIsSyncable(account, getString(R.string.authority_bookmarks), 1);
 		ContentResolver.setIsSyncable(account, getString(R.string.authority_settings), 1);
+		ContentResolver.addPeriodicSync(account, getString(R.string.authority_positions), new Bundle(), 1800);
+		ContentResolver.addPeriodicSync(account, getString(R.string.authority_bookmarks), new Bundle(), 1800);
+		ContentResolver.setSyncAutomatically(account, getString(R.string.authority_positions), true);
+		ContentResolver.setSyncAutomatically(account, getString(R.string.authority_bookmarks), true);
 		return accountManager.addAccountExplicitly(account, "", userData);
 	}
 	
@@ -131,4 +135,10 @@ public class SyncAuth extends Activity {
 	    	}
 	    }
 	}
+    
+    @Override
+    protected void onPause() {
+    	super.onPause();
+    	finish();
+    }
 }

@@ -1,6 +1,5 @@
 package com.sync.service;
 
-import java.lang.reflect.Method;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -20,7 +19,6 @@ import android.content.Intent;
 import android.content.SyncResult;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.os.Debug;
 import android.util.Log;
 
 public class FBSyncPositionsService extends FBSyncBaseService {

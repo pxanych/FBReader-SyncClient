@@ -22,17 +22,23 @@ public class FBSettings extends PreferenceActivity {
 			(CheckBoxPreference)findPreference(getString(R.string.checkbox_positions));
 		String authority = getString(R.string.authority_positions);
 		pref.setOnPreferenceClickListener(new PreferenceClickListener(authority, this));
-		pref.setChecked(ContentResolver.getIsSyncable(account, authority) > 0);
+		pref.setChecked(ContentResolver.getSyncAutomatically(account, authority));
 		
 		pref = (CheckBoxPreference)findPreference(getString(R.string.checkbox_bookmarks));
 		authority = getString(R.string.authority_bookmarks);
 		pref.setOnPreferenceClickListener(new PreferenceClickListener(authority, this));
-		pref.setChecked(ContentResolver.getIsSyncable(account, authority) > 0);
+		pref.setChecked(ContentResolver.getSyncAutomatically(account, authority));
 		
 		pref = (CheckBoxPreference)findPreference(getString(R.string.checkbox_settings));
 		authority = getString(R.string.authority_settings);
 		pref.setOnPreferenceClickListener(new PreferenceClickListener(authority, this));
-		pref.setChecked(ContentResolver.getIsSyncable(account, authority) > 0);
+		pref.setChecked(ContentResolver.getSyncAutomatically(account, authority));
+	}
+	
+	@Override
+	protected void onPause() {
+		super.onPause();
+		finish();
 	}
 	
 	private class PreferenceClickListener implements OnPreferenceClickListener {
@@ -41,7 +47,7 @@ public class FBSettings extends PreferenceActivity {
 		private final Context myContext;
 		
 		public PreferenceClickListener(String authority, Context context){
-			myAuthority = authority;	
+			myAuthority = authority;
 			myContext = context;
 		}
 		
@@ -50,7 +56,6 @@ public class FBSettings extends PreferenceActivity {
 			String accountType = myContext.getString(R.string.account_type);
 			int syncable = (pref.isChecked()) ? 1 : 0;
 			Account account = AccountManager.get(myContext).getAccountsByType(accountType)[0];
-			ContentResolver.setIsSyncable(account, myAuthority, syncable);
 			ContentResolver.addPeriodicSync(account, myAuthority, new Bundle(), 1800);
 			ContentResolver.setSyncAutomatically(account, myAuthority, syncable == 1);
 			return true;
