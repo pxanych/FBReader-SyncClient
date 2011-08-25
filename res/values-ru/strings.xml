@@ -30,4 +30,11 @@
     <string name="openid_main">Создать аккаунт FBReader Sync plugin с использованием Google OpenID</string>
     <string name="openid_summary">Вместо того, чтобы регистрироваться на нашем сервере, Вы можете использовать свой Google-аккаунт.
     После нажатия на кнопку "Далее" Вы будете перенаправлены на страницу Google, где можно будет выполнить авторизацию.</string>
+    
+    <string name="auth">Вход</string>
+    <string name="auth_our_acc">Аккаунт плагина</string>
+    
+    <string name="auth_sign_in">или войдите с помощью</string>
+    <string name="auth_sign_in_google">Google</string>
+    <string name="auth_sign_in_facebook">Facebook</string>
 </resources>

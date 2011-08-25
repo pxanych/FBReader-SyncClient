@@ -29,4 +29,11 @@
     <string name="synchronized_data">Synchronized data</string>
     <string name="openid_main">TODO: openid_main en</string>
     <string name="openid_summary">TODO: openid_summary en</string>
+    
+    <string name="auth">Enter</string>
+    <string name="auth_our_acc">With plugin account</string>
+    
+    <string name="auth_sign_in">or sign in with</string>
+    <string name="auth_sign_in_google">Google</string>
+    <string name="auth_sign_in_facebook">Facebook</string>
 </resources>

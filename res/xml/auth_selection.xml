@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen 
+xmlns:android="http://schemas.android.com/apk/res/android"
+android:title="@string/auth"
+android:key="@string/auth_key"
+>    
+	<Preference 
+	android:key="@string/auth_our_acc_key" 
+	android:title="@string/auth_our_acc"
+	/>
+	
+	<PreferenceCategory 
+	android:title="@string/auth_sign_in">
+		    
+		    <com.android.settings.IconPreferenceScreen 
+    		android:key="@string/auth_google_key" 
+    		android:title="@string/auth_sign_in_google"
+    		/>
+	
+			<com.android.settings.IconPreferenceScreen 
+			android:key="@string/auth_facebook_key" 
+			android:title="@string/auth_sign_in_facebook"
+			/>
+		
+	</PreferenceCategory>
+	
+</PreferenceScreen>

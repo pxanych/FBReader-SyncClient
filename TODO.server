@@ -1,0 +1,27 @@
+Таблицы сервера:
+
+Данные на сервере: 
+	- таблица user:
+		1) user_id
+		2) auth_type (varchar) - типа аккаунта пользователя
+		3) signature
+		
+	- таблица auth_google:
+		1) user_id (foreign key из таблицы user)
+		2) google_identifier (OpenID)
+	
+	- таблица auth_our:
+		1) user_id (foreign key из таблицы user)
+		2) login
+		3) password_hash
+		
+	- таблица book со следующими полями:
+		1) book_id
+		2) user_id (foreign key из таблицы user)
+		3) book_hash
+		4) title
+		5) author
+		6) current_text_position
+		7) update_timestamp
+		
+	
