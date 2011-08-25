@@ -31,7 +31,16 @@
     <string name="openid_summary">TODO: openid_summary en</string>
     
     <string name="auth">Enter</string>
+    
     <string name="auth_our_acc">With plugin account</string>
+    <string name="login">Login</string>
+    <string name="password">Password</string>
+    <string name="confirm_password">Confirm password</string>
+    <string name="not_match">Passwords do not match</string>
+    <string name="already_registered">Account with this login already exists</string>
+    <string name="wrong_pw">Wrong password</string>
+    <string name="no_account">No such account</string>
+    <string name="empty_login_or_pass">Empty login or password are not allowed</string>
     
     <string name="auth_sign_in">or sign in with</string>
     <string name="auth_sign_in_google">Google</string>

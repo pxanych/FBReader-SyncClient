@@ -17,6 +17,57 @@ import android.content.Context;
 
 public class ServerInterface{
 	
+	
+	public static String our_auth_register(Context context, String account, String password)
+					throws ServerInterfaceException {
+		return our_auth(context, account, password, "register");
+	}
+
+	public static String our_auth_login(Context context, String account, String password) 
+					throws ServerInterfaceException {
+		return our_auth(context, account, password, "login");
+	}
+
+	private static String our_auth(Context context, String account, 
+			String password, String operation) throws ServerInterfaceException {
+	
+		ZLNetworkManager networkManager = new ZLNetworkManager();
+		JSONArray query = new JSONArray();
+		JSONArray args = new JSONArray();
+		
+		try {
+			args.put(account);
+			args.put(Digests.hashSHA256(password));
+			
+			query.put(operation);
+			query.put(args);
+			
+			Request request = new Request(
+							context.getString(R.string.api_url), 
+							null, 
+							query.toString()
+							);
+			networkManager.perform(request);
+			JSONArray reply = request.getResponse();
+			Boolean success = reply.getBoolean(0);
+			String msg = reply.getString(1);
+			
+			if (success) {
+				return msg;
+			} else {
+				throw new ServerInterfaceException(msg);
+			}
+		}
+		catch (Exception e) {
+			if (e instanceof ServerInterfaceException) {
+				throw (ServerInterfaceException)e;
+		} else {
+			throw new ServerInterfaceException("Error during server conversation", e);
+			}
+		}
+	}
+
+
 	public ServerInterface(Context context, String id, String signature) 
 			throws ServerInterfaceException {
 		myContext = context;
@@ -158,7 +209,7 @@ public class ServerInterface{
 		}
 	}
 	
-	public class ServerInterfaceException extends Exception {
+	public static class ServerInterfaceException extends Exception {
 		private static final long serialVersionUID = -3168258901503477292L;
 		public ServerInterfaceException(String message) {
 			super(message);

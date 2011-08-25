@@ -32,7 +32,16 @@
     После нажатия на кнопку "Далее" Вы будете перенаправлены на страницу Google, где можно будет выполнить авторизацию.</string>
     
     <string name="auth">Вход</string>
+    
     <string name="auth_our_acc">Аккаунт плагина</string>
+    <string name="login">Логин</string>
+    <string name="password">Пароль</string>
+    <string name="confirm_password">Подтвердите пароль</string>
+    <string name="not_match">Пароли не совпадают</string>
+    <string name="already_registered">Данный логин уже занят</string>
+    <string name="wrong_pw">Неверный пароль</string>
+    <string name="no_account">Нет аккаунта с таким логином</string>
+    <string name="empty_login_or_pass">Пустые логин/пароль не разрешены</string>
     
     <string name="auth_sign_in">или войдите с помощью</string>
     <string name="auth_sign_in_google">Google</string>
