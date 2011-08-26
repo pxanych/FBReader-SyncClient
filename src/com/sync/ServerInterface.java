@@ -17,6 +17,41 @@ import android.content.Context;
 
 public class ServerInterface{
 	
+	public static String login_facebook(Context context, String account_hash)
+					throws ServerInterfaceException {
+		ZLNetworkManager networkManager = new ZLNetworkManager();
+		JSONArray query = new JSONArray();
+		JSONArray args = new JSONArray();
+		
+		Boolean success;
+		String msg;
+		try {
+			args.put(account_hash);
+			args.put(Digests.hashSHA256(account_hash + SyncConstants.FACEBOOK_APP_SECRET));
+			
+			query.put("login_facebook");
+			query.put(args);
+			
+			Request request = new Request(
+							context.getString(R.string.api_url), 
+							null, 
+							query.toString()
+							);
+			networkManager.perform(request);
+			JSONArray reply = request.getResponse();
+			success = reply.getBoolean(0);
+			if (success) {
+				return reply.getString(2);
+			} else {
+				msg = reply.getString(1);
+			}
+		}
+		catch (Exception e) {
+			throw new ServerInterfaceException("Error during server conversation", e);
+		}
+		throw new ServerInterfaceException(msg);
+	}
+	
 	
 	public static String our_auth_register(Context context, String account, String password)
 					throws ServerInterfaceException {

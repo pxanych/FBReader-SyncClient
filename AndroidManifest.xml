@@ -42,6 +42,12 @@
 		</activity>
 		
 		<activity 
+			android:name=".AuthFacebook" 
+			android:label="AuthFacebook"
+			>
+		</activity>
+		
+		<activity 
 			android:name=".FBSettings" 
 			android:label="@string/sync_authentication"
 			>

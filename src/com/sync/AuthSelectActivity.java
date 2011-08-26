@@ -36,13 +36,13 @@ public class AuthSelectActivity extends PreferenceActivity {
 		
 		ourAcc.setOnPreferenceClickListener(new OurAccOnClickListener());
 		googleAcc.setOnPreferenceClickListener(new GoogleOnClickListener());
+		fbAcc.setOnPreferenceClickListener(new FacebookOnClickListener());
 	}
 	
 	
 	private class GoogleOnClickListener implements OnPreferenceClickListener {
 
 		public boolean onPreferenceClick(Preference preference) {
-			//Intent forward = new Intent(android.provider.Settings.ACTION_ADD_ACCOUNT);
 			Intent forward = new Intent(getApplicationContext(), SyncAuth.class);
 			
 			String[] authorities = new String[]{
@@ -66,4 +66,16 @@ public class AuthSelectActivity extends PreferenceActivity {
 			return true;
 		}
 	}	
+	
+	private class FacebookOnClickListener implements OnPreferenceClickListener {
+
+		public boolean onPreferenceClick(Preference preference) {
+			Intent forward = new Intent(AuthSelectActivity.this, AuthFacebook.class);
+			
+			startActivity(forward);
+			
+			finish();
+			return true;
+		}
+	}
 }

@@ -5,6 +5,7 @@ import android.accounts.AccountAuthenticatorResponse;
 import android.accounts.AccountManager;
 import android.app.Activity;
 import android.content.ContentResolver;
+import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.Html;
@@ -85,7 +86,7 @@ public class SyncAuth extends Activity {
 			}
 			AccountManager accountManager = AccountManager.get(this);
 			if("1".equals(args[0])) {
-				addAccount(accountManager, args[1], args[2]);
+				addAccount(this, accountManager, args[1], args[2]);
 			} else {
 				response.onError(
 						AccountManager.ERROR_CODE_CANCELED, 
@@ -104,21 +105,21 @@ public class SyncAuth extends Activity {
 	}
 	
 	
-	private Boolean addAccount(AccountManager accountManager, String id, String signature) {
+	public static Boolean addAccount(Context context, AccountManager accountManager, String id, String signature) {
 		Account account = new Account(
-				getString(R.string.account_name), 
-				getString(R.string.account_type)
+				context.getString(R.string.account_name), 
+				context.getString(R.string.account_type)
 				);
 		Bundle userData = new Bundle();
-		userData.putString(getString(R.string.settings_id), id);
-		userData.putString(getString(R.string.settings_sig), signature);
-		ContentResolver.setIsSyncable(account, getString(R.string.authority_positions), 1);
-		ContentResolver.setIsSyncable(account, getString(R.string.authority_bookmarks), 1);
-		ContentResolver.setIsSyncable(account, getString(R.string.authority_settings), 1);
-		ContentResolver.addPeriodicSync(account, getString(R.string.authority_positions), new Bundle(), 1800);
-		ContentResolver.addPeriodicSync(account, getString(R.string.authority_bookmarks), new Bundle(), 1800);
-		ContentResolver.setSyncAutomatically(account, getString(R.string.authority_positions), true);
-		ContentResolver.setSyncAutomatically(account, getString(R.string.authority_bookmarks), true);
+		userData.putString(context.getString(R.string.settings_id), id);
+		userData.putString(context.getString(R.string.settings_sig), signature);
+		ContentResolver.setIsSyncable(account, context.getString(R.string.authority_positions), 1);
+		ContentResolver.setIsSyncable(account, context.getString(R.string.authority_bookmarks), 1);
+		ContentResolver.setIsSyncable(account, context.getString(R.string.authority_settings), 1);
+		ContentResolver.addPeriodicSync(account, context.getString(R.string.authority_positions), new Bundle(), 1800);
+		ContentResolver.addPeriodicSync(account, context.getString(R.string.authority_bookmarks), new Bundle(), 1800);
+		ContentResolver.setSyncAutomatically(account, context.getString(R.string.authority_positions), true);
+		ContentResolver.setSyncAutomatically(account, context.getString(R.string.authority_bookmarks), true);
 		return accountManager.addAccountExplicitly(account, "", userData);
 	}
 	

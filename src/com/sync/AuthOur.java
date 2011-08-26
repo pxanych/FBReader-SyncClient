@@ -2,10 +2,8 @@ package com.sync;
 
 import com.sync.ServerInterface.ServerInterfaceException;
 
-import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.app.Activity;
-import android.content.ContentResolver;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -36,25 +34,6 @@ public class AuthOur extends Activity {
 	
 		registerButton.setOnClickListener(new RegisterClickListener());
 		loginButton.setOnClickListener(new LoginClickListener());
-	}
-	
-	private Boolean addAccount(AccountManager accountManager, String id, String signature) {
-		Account account = new Account(
-				getString(R.string.account_name), 
-				getString(R.string.account_type)
-				);
-		Bundle userData = new Bundle();
-		userData.putString(getString(R.string.settings_id), id);
-		userData.putString(getString(R.string.settings_sig), signature);
-		ContentResolver.setIsSyncable(account, getString(R.string.authority_positions), 1);
-		ContentResolver.setIsSyncable(account, getString(R.string.authority_bookmarks), 1);
-		ContentResolver.setIsSyncable(account, getString(R.string.authority_settings), 1);
-		ContentResolver.addPeriodicSync(account, getString(R.string.authority_positions), new Bundle(), 1800);
-		ContentResolver.addPeriodicSync(account, getString(R.string.authority_bookmarks), new Bundle(), 1800);
-		ContentResolver.setSyncAutomatically(account, getString(R.string.authority_positions), true);
-		ContentResolver.setSyncAutomatically(account, getString(R.string.authority_bookmarks), true);
-		finish();
-		return accountManager.addAccountExplicitly(account, "", userData);
 	}
 	
     @Override
@@ -104,7 +83,12 @@ public class AuthOur extends Activity {
 											account, 
 											pass
 											);
-					addAccount(AccountManager.get(AuthOur.this), account, sig);
+					SyncAuth.addAccount(
+							AuthOur.this, 
+							AccountManager.get(AuthOur.this), 
+							account, 
+							sig
+							);
 				}
 				catch (ServerInterfaceException e) {
 					if (e.getMessage().equals("already_registered")) {
@@ -149,7 +133,12 @@ public class AuthOur extends Activity {
 										account, 
 										pass
 										);
-				addAccount(AccountManager.get(AuthOur.this), account, sig);
+				SyncAuth.addAccount(
+						AuthOur.this, 
+						AccountManager.get(AuthOur.this), 
+						account, 
+						sig
+						);
 			}
 			catch (ServerInterfaceException e) {
 				if (e.getMessage().equals("wrong_pw")) {
