@@ -89,6 +89,7 @@ public class AuthOur extends Activity {
 							account, 
 							sig
 							);
+					finish();
 				}
 				catch (ServerInterfaceException e) {
 					if (e.getMessage().equals("already_registered")) {
@@ -139,6 +140,7 @@ public class AuthOur extends Activity {
 						account, 
 						sig
 						);
+				finish();
 			}
 			catch (ServerInterfaceException e) {
 				if (e.getMessage().equals("wrong_pw")) {
