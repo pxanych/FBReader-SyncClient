@@ -33,7 +33,7 @@
     
     <string name="auth">Вход</string>
     
-    <string name="auth_our_acc">Аккаунт плагина</string>
+    <string name="auth_our_acc">аккаунт FBReader.Org</string>
     <string name="login">Логин</string>
     <string name="password">Пароль</string>
     <string name="confirm_password">Подтвердите пароль</string>

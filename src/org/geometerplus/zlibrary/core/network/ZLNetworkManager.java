@@ -39,7 +39,6 @@ import org.apache.http.params.*;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.BasicHttpContext;
 
-import android.os.Debug;
 
 public class ZLNetworkManager {
 	private static ZLNetworkManager ourManager;
@@ -195,7 +194,7 @@ public class ZLNetworkManager {
 				if (responseCode == HttpURLConnection.HTTP_UNAUTHORIZED) {
 					throw new ZLNetworkException(ZLNetworkException.ERROR_AUTHENTICATION_FAILED);
 				} else {
-					throw new ZLNetworkException(true, response.getStatusLine().toString());
+					throw new ZLNetworkException(response.getStatusLine().toString());
 				}
 			}
 		} catch (ZLNetworkException e) {
@@ -204,9 +203,9 @@ public class ZLNetworkManager {
 			e.printStackTrace();
 			final String[] eName = e.getClass().getName().split("\\.");
 			if (eName.length > 0) {
-				throw new ZLNetworkException(true, eName[eName.length - 1] + ": " + e.getMessage(), e);
+				throw new ZLNetworkException(eName[eName.length - 1] + ": " + e.getMessage(), e);
 			} else {
-				throw new ZLNetworkException(true, e.getMessage(), e);
+				throw new ZLNetworkException(e.getMessage(), e);
 			}
 		} finally {
 			request.doAfter(success);
@@ -247,7 +246,7 @@ public class ZLNetworkManager {
 				}
 				message.append(e);
 			}
-			throw new ZLNetworkException(true, message.toString());
+			throw new ZLNetworkException(message.toString());
 		}
 	}
 

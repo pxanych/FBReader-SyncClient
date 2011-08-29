@@ -32,7 +32,7 @@
     
     <string name="auth">Enter</string>
     
-    <string name="auth_our_acc">With plugin account</string>
+    <string name="auth_our_acc">FBReader.Org account</string>
     <string name="login">Login</string>
     <string name="password">Password</string>
     <string name="confirm_password">Confirm password</string>
