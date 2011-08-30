@@ -23,10 +23,13 @@
     <string name="syncronized_settings">Синхронизируемые настройки FBReader</string>
     <string name="operation_cancelled">Операция отменена</string>
     <string name="bad_server_response">Неверный ответ сервера.</string>
+    
+    <string name="plugin_settings">Настройки плагина</string>
     <string name="synchronize_settings">Настройки FBReader</string>
     <string name="synchronize_bookmarks">Закладки</string>
     <string name="synchronize_positions">Текущие позиции</string>
     <string name="synchronized_data">Синхронизируемые данные</string>
+    <string name="plugin_settings_misc">Прочее</string>
     <string name="logout">Сменить учётную запись</string>
     <string name="openid_main">Создать аккаунт FBReader Sync plugin с использованием Google OpenID</string>
     <string name="openid_summary">Вместо того, чтобы регистрироваться на нашем сервере, Вы можете использовать свой Google-аккаунт.

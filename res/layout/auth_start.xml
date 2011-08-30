@@ -8,7 +8,6 @@
   android:gravity="top">
     <TextView android:layout_alignParentLeft="true" android:layout_alignParentTop="true" android:textAppearance="?android:attr/textAppearanceMedium" android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/screen_description" android:text="@string/openid_main"></TextView>
     <TextView android:layout_alignParentLeft="true" android:layout_below="@+id/screen_description" android:textAppearance="?android:attr/textAppearanceSmall" android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/about_account" android:text="@string/openid_summary"></TextView>
-    <TextView android:layout_alignParentLeft="true" android:layout_below="@+id/about_account" android:textAppearance="?android:attr/textAppearanceSmall" android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/about_openid" android:text="TextView"></TextView>
     <RelativeLayout 
     android:layout_width="wrap_content" 
     android:layout_height="wrap_content" 

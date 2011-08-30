@@ -10,15 +10,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.text.Html;
-import android.text.method.LinkMovementMethod;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
-import android.widget.TextView;
 
 public class SyncAuth extends Activity {
 	
@@ -27,10 +24,6 @@ public class SyncAuth extends Activity {
 		super.onCreate(savedInstanceState);
 		
 		setContentView(R.layout.auth_start);
-		
-		TextView about_openid = (TextView)findViewById(R.id.about_openid);
-		about_openid.setText(Html.fromHtml(getString(R.string.auth_start_about_openid)));
-		about_openid.setMovementMethod(LinkMovementMethod.getInstance());
 		
 		Button buttonContinue = (Button)findViewById(R.id.button_continue);
 		buttonContinue.setOnClickListener(
