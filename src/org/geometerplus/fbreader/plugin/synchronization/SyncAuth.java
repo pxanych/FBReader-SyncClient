@@ -3,11 +3,11 @@ package org.geometerplus.fbreader.plugin.synchronization;
 import org.geometerplus.fbreader.plugin.synchronization.R;
 
 import android.accounts.Account;
-import android.accounts.AccountAuthenticatorResponse;
 import android.accounts.AccountManager;
 import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.Html;
@@ -21,15 +21,12 @@ import android.widget.Button;
 import android.widget.TextView;
 
 public class SyncAuth extends Activity {
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		if (getIntent().getExtras() == null){
-			finish();
-		}
 		
 		setContentView(R.layout.auth_start);
-		
 		
 		TextView about_openid = (TextView)findViewById(R.id.about_openid);
 		about_openid.setText(Html.fromHtml(getString(R.string.auth_start_about_openid)));
@@ -69,14 +66,11 @@ public class SyncAuth extends Activity {
 		browserView.setNetworkAvailable(true);
 		browserView.setWebViewClient(new SyncWebViewClient());
 		browserView.getSettings().setJavaScriptEnabled(true);
-		browserView.loadUrl(SyncConstants.AUTH_URL);
+		browserView.loadUrl(ServerInterface.AUTH_URL);
     }
 	
     
 	private void completeAuthentication(Uri reply) {
-		Bundle extras = getIntent().getExtras();
-		AccountAuthenticatorResponse response = 
-				extras.getParcelable(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE);
 		String query = reply.getQuery();
     	try{
     		if (query == null) {
@@ -89,21 +83,19 @@ public class SyncAuth extends Activity {
 			AccountManager accountManager = AccountManager.get(this);
 			if("1".equals(args[0])) {
 				addAccount(this, accountManager, args[1], args[2]);
+				setResult(RESULT_OK);
+		    	finish();
 			} else {
-				response.onError(
-						AccountManager.ERROR_CODE_CANCELED, 
-						getString(R.string.operation_cancelled)
-						);		
+				setResult(RESULT_CANCELED);
+				finish();
 			}
     	}
     	catch(ArrayIndexOutOfBoundsException e) {
-    		response.onError(
-    				AccountManager.ERROR_CODE_INVALID_RESPONSE, 
-    				getString(R.string.bad_server_response)
-    				);
+    		Intent errorDescription = new Intent();
+    		errorDescription.putExtra(AuthSelectActivity.ERROR_DESCRIPTION, e.getMessage());
+    		setResult(AuthSelectActivity.RESULT_ERROR, errorDescription);
+    		finish();
     	}
-    	setResult(RESULT_OK);
-    	finish();
 	}
 	
 	

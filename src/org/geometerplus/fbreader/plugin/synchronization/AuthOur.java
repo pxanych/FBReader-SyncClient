@@ -1,5 +1,6 @@
 package org.geometerplus.fbreader.plugin.synchronization;
 
+
 import org.geometerplus.fbreader.plugin.synchronization.ServerInterface.ServerInterfaceException;
 
 import android.accounts.AccountManager;
@@ -15,25 +16,36 @@ import android.widget.RelativeLayout.LayoutParams;
 
 public class AuthOur extends Activity {
 	
-	private EditText login;
-	private EditText password;
-	private EditText passwordConfirm;
-	private Button loginButton;
-	private Button registerButton;
+	public static final String REGISTER_FLAG = "register_mode";
+	private EditText myLogin;
+	private EditText myPassword;
+	private EditText myPasswordConfirm;
+	private Button myButton;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.auth_our);
 		
-		login = (EditText)findViewById(R.id.loginEditText);
-		password = (EditText)findViewById(R.id.passwordEditText);
-		passwordConfirm = (EditText)findViewById(R.id.passwordConfirmEditText);
-		loginButton = (Button)findViewById(R.id.buttonLogin);
-		registerButton = (Button)findViewById(R.id.buttonRegister);
+		myLogin = (EditText)findViewById(R.id.loginEditText);
+		myPassword = (EditText)findViewById(R.id.passwordEditText);
+		myPasswordConfirm = (EditText)findViewById(R.id.passwordConfirmEditText);
+		myButton = (Button)findViewById(R.id.button);
 	
-		registerButton.setOnClickListener(new RegisterClickListener());
-		loginButton.setOnClickListener(new LoginClickListener());
+		if (getIntent().getBooleanExtra(REGISTER_FLAG, false)) {
+			myPasswordConfirm.setVisibility(View.VISIBLE);
+			LayoutParams layoutParams = (LayoutParams)myButton.getLayoutParams();
+			layoutParams.addRule(RelativeLayout.BELOW, R.id.passwordConfirmEditText);
+			myButton.setText(R.string.auth_our_acc_do_register);
+			myButton.setOnClickListener(new RegisterClickListener());
+			setTitle(getString(R.string.auth_our_acc_register));
+		} else {
+			myPasswordConfirm.setVisibility(View.INVISIBLE);
+			myButton.setText(R.string.auth_our_acc_do_sign_in);
+			myButton.setOnClickListener(new LoginClickListener());
+			setTitle(getString(R.string.auth_our_acc_sign_in));
+		}
+		
 	}
 	
     @Override
@@ -42,78 +54,78 @@ public class AuthOur extends Activity {
     	finish();
     }
     
-    
     private class RegisterClickListener implements OnClickListener {
     	
-    	private Boolean inRegisterMode = false;
-
 		public void onClick(View v) {
 			
-			if (!inRegisterMode) {
-				loginButton.setVisibility(View.GONE);
-				passwordConfirm.setVisibility(View.VISIBLE);
-				
-				LayoutParams regButtonParams = (LayoutParams)registerButton.getLayoutParams();
-				regButtonParams.addRule(RelativeLayout.BELOW, R.id.passwordConfirmEditText);
-				inRegisterMode = true;
-			} else {
-				String account = login.getText().toString();
-				String pass = password.getText().toString();
-				String passConfirm = passwordConfirm.getText().toString();
-				if (!pass.equals(passConfirm)) {
-					password.setText("");
-					passwordConfirm.setText("");
-					Toast.makeText(
-							getApplicationContext(),
-							R.string.not_match,
-							Toast.LENGTH_SHORT).show();
-					return;
-				}
-				if (pass.length() == 0 || account.length() == 0){
-					Toast.makeText(
-							getApplicationContext(),
-							R.string.empty_login_or_pass,
-							Toast.LENGTH_SHORT).show();
-					return;
-				}
-				
-				try {
-					String sig = ServerInterface.our_auth_register(
-											getApplicationContext(), 
-											account, 
-											pass
-											);
+			String account = myLogin.getText().toString();
+			String pass = myPassword.getText().toString();
+			String passConfirm = myPasswordConfirm.getText().toString();
+			if (!pass.equals(passConfirm)) {
+				myPassword.setText("");
+				myPasswordConfirm.setText("");
+				Toast.makeText(
+						getApplicationContext(),
+						R.string.not_match,
+						Toast.LENGTH_SHORT).show();
+				return;
+			}
+			if (pass.length() == 0 || account.length() == 0){
+				Toast.makeText(
+						getApplicationContext(),
+						R.string.empty_login_or_pass,
+						Toast.LENGTH_SHORT).show();
+				return;
+			}
+			try {
+				Bundle reply = ServerInterface.our_auth_register(
+										AuthOur.this, 
+										account, 
+										pass
+										);
+				if (reply.containsKey(ServerInterface.SIG_KEY)) {
 					SyncAuth.addAccount(
 							AuthOur.this, 
 							AccountManager.get(AuthOur.this), 
 							account, 
-							sig
+							reply.getString(ServerInterface.SIG_KEY)
 							);
+					setResult(RESULT_OK);
 					finish();
-				}
-				catch (ServerInterfaceException e) {
-					if (e.getMessage().equals("already_registered")) {
+				} else {
+					setResult(RESULT_CANCELED);
+					switch (reply.getInt(ServerInterface.ERROR_CODE)) {
+					case ServerInterface.DB_ERROR:
 						Toast.makeText(
-								getApplicationContext(),
-								R.string.already_registered,
-								Toast.LENGTH_SHORT).show();
+								AuthOur.this,
+								getString(R.string.internal_error), 
+								Toast.LENGTH_LONG
+								).show();
 						return;
-					} else {
+					case ServerInterface.ALREADY_REGISTERED:
 						Toast.makeText(
-								getApplicationContext(),
-								getString(R.string.internal_error) + ": " + e.getMessage(),
-								Toast.LENGTH_SHORT).show();
+								AuthOur.this,
+								getString(R.string.already_registered), 
+								Toast.LENGTH_LONG
+								).show();
+							return;
 					}
 				}
 			}
+			catch (ServerInterfaceException e) {
+				Toast.makeText(
+						AuthOur.this,
+						getString(R.string.internal_error) + ": " + e.getMessage(), 
+						Toast.LENGTH_LONG
+						).show();
+			}
 		}
-    }
+	}
     
     
     private class LoginClickListener implements OnClickListener {
 
 		public void onClick(View v) {
-			
 			EditText login = (EditText)findViewById(R.id.loginEditText);
 			EditText password = (EditText)findViewById(R.id.passwordEditText);
 
@@ -129,39 +141,53 @@ public class AuthOur extends Activity {
 			}
 				
 			try {
-				String sig = ServerInterface.our_auth_login(
+				Bundle reply = ServerInterface.our_auth_login(
 										getApplicationContext(), 
 										account, 
 										pass
 										);
-				SyncAuth.addAccount(
-						AuthOur.this, 
-						AccountManager.get(AuthOur.this), 
-						account, 
-						sig
-						);
-				finish();
+				if (reply.containsKey(ServerInterface.SIG_KEY)) {
+					SyncAuth.addAccount(
+							AuthOur.this, 
+							AccountManager.get(AuthOur.this), 
+							account, 
+							reply.getString(ServerInterface.SIG_KEY)
+							);
+					setResult(RESULT_OK);
+					finish();
+				} else {
+					setResult(RESULT_CANCELED);
+					switch (reply.getInt(ServerInterface.ERROR_CODE)) {
+					case ServerInterface.DB_ERROR:
+						Toast.makeText(
+								AuthOur.this,
+								getString(R.string.internal_error), 
+								Toast.LENGTH_LONG
+								).show();
+						return;
+					case ServerInterface.NO_ACCOUNT:
+						Toast.makeText(
+								AuthOur.this,
+								getString(R.string.no_account), 
+								Toast.LENGTH_LONG
+								).show();
+						return;
+					case ServerInterface.WRONG_PW:
+						Toast.makeText(
+								AuthOur.this,
+								getString(R.string.wrong_pw), 
+								Toast.LENGTH_LONG
+								).show();
+						return;
+					}
+				}
 			}
 			catch (ServerInterfaceException e) {
-				if (e.getMessage().equals("wrong_pw")) {
-					Toast.makeText(
-							getApplicationContext(),
-							R.string.wrong_pw,
-							Toast.LENGTH_SHORT).show();
-					return;
-				} 
-				if (e.getMessage().equals("no_account")) {
-					Toast.makeText(
-							getApplicationContext(),
-							R.string.no_account,
-							Toast.LENGTH_SHORT).show();
-					return;
-				} else {
-					Toast.makeText(
-							getApplicationContext(),
-							getString(R.string.internal_error) + ": " + e.getMessage(),
-							Toast.LENGTH_SHORT).show();
-				}
+				Toast.makeText(
+						AuthOur.this,
+						getString(R.string.internal_error) + ": " + e.getMessage(), 
+						Toast.LENGTH_LONG
+						).show();
 			}
 		}
 	}

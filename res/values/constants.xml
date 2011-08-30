@@ -9,9 +9,11 @@
     <string name="checkbox_settings">sync_settings</string>
     <string name="checkbox_bookmarks">sync_bookmarks</string>
     <string name="checkbox_positions">sync_positions</string>
+    <string name="preference_logout">preference_logout</string>
     
     <string name="auth_key">auth_key</string>
-    <string name="auth_our_acc_key">our_acc_preference</string>
+    <string name="auth_our_acc_sign_in_key">our_acc_sign_in_preference</string>
+    <string name="auth_our_acc_register_key">our_acc_register_preference</string>
     <string name="auth_google_key">acc_google_preference</string>
     <string name="auth_facebook_key">acc_facebook_preference</string>
 </resources>

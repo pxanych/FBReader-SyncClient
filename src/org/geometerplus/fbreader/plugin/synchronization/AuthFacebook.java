@@ -13,7 +13,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.widget.Toast;
 
 public class AuthFacebook extends Activity {
 
@@ -28,13 +27,17 @@ public class AuthFacebook extends Activity {
 		fbAuth.authorize(this, new DialogListener() {
 			
 			public void onFacebookError(FacebookError e) {
-				Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_LONG).show();
-				onCancel();
+				Intent errorDescription = new Intent();
+				errorDescription.putExtra(AuthSelectActivity.ERROR_DESCRIPTION, e.getMessage());
+				setResult(AuthSelectActivity.RESULT_ERROR, errorDescription);
+				finish();
 			}
 			
 			public void onError(DialogError e) {
-				Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_LONG).show();
-				onCancel();
+				Intent errorDescription = new Intent();
+				errorDescription.putExtra(AuthSelectActivity.ERROR_DESCRIPTION, e.getMessage());
+				setResult(AuthSelectActivity.RESULT_ERROR, errorDescription);
+				finish();
 			}
 			
 			public void onComplete(Bundle values) {
@@ -43,33 +46,47 @@ public class AuthFacebook extends Activity {
 					String jsonreply = fbAuth.request("me");
 					JSONObject jsonReply = new JSONObject(jsonreply);
 					String acc_hash = Digests.hashSHA256(jsonReply.getString("id"));
-					String sig = ServerInterface.login_facebook(context, acc_hash);
-					SyncAuth.addAccount(context, AccountManager.get(context), acc_hash, sig);
-					finish();
+					Bundle reply = ServerInterface.login_facebook(context, acc_hash);
+					if (reply.containsKey(ServerInterface.SIG_KEY)) {
+						SyncAuth.addAccount(
+								context, 
+								AccountManager.get(context), 
+								acc_hash, 
+								reply.getString(ServerInterface.SIG_KEY));
+						setResult(RESULT_OK);
+						finish();
+					} else {
+						Intent errorDescription = new Intent();
+						errorDescription.putExtra(
+								AuthSelectActivity.ERROR_DESCRIPTION, 
+								getString(R.string.internal_error) + ": "
+									+ reply.getString(ServerInterface.ERROR_MESSAGE) 
+								);
+						setResult(AuthSelectActivity.RESULT_ERROR, errorDescription);
+						finish();
+					}
 				} 
 				catch (Exception e) {
-					Toast.makeText(
-							AuthFacebook.this, 
-							getString(R.string.internal_error) + ": " + e.getMessage(), 
-							Toast.LENGTH_SHORT
-							).show();
-					onCancel();
+					Intent errorDescription = new Intent();
+					errorDescription.putExtra(
+							AuthSelectActivity.ERROR_DESCRIPTION, 
+							getString(R.string.internal_error) + ": " + e.getMessage()
+							);
+					setResult(AuthSelectActivity.RESULT_ERROR, errorDescription);
+					finish();
 				}
 			}
 			
 			public void onCancel() {
+				setResult(RESULT_CANCELED);
 				finish();
-				startActivity(new Intent(AuthFacebook.this, AuthSelectActivity.class));
 			}
 		});
 	}
 	
-
-        
     
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-    	
     	super.onActivityResult(requestCode, resultCode, data);
     	fbAuth.authorizeCallback(requestCode, resultCode, data);
     }

@@ -9,21 +9,31 @@ import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.Preference.OnPreferenceClickListener;
+import android.widget.Toast;
 
 public class AuthSelectActivity extends PreferenceActivity {
-
+	
+	public final static int RESULT_ERROR = RESULT_FIRST_USER + 1;
+	public final static String ERROR_DESCRIPTION = "error_description";
+	private final int OUR_AUTH_REQUEST_CODE = 1;
+	private final int GOOGLE_REQUEST_CODE = 2;
+	private final int FACEBOOK_REQUEST_CODE = 3;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
 		addPreferencesFromResource(R.xml.auth_selection);
 		
-		String ourAccKey = getString(R.string.auth_our_acc_key);
+		String ourSignInKey = getString(R.string.auth_our_acc_sign_in_key);
+		String ourRegisterKey = getString(R.string.auth_our_acc_register_key);
 		String googleAccKey = getString(R.string.auth_google_key);
 		String fbAccKey = getString(R.string.auth_facebook_key);
 
-		Preference ourAcc = 
-			(Preference)findPreference(ourAccKey);
+		Preference ourSignIn = 
+			(Preference)findPreference(ourSignInKey);
+		Preference ourRegister = 
+			(Preference)findPreference(ourRegisterKey);
 		IconPreferenceScreen googleAcc = 
 			(IconPreferenceScreen)findPreference(googleAccKey);
 		IconPreferenceScreen fbAcc = 
@@ -35,47 +45,61 @@ public class AuthSelectActivity extends PreferenceActivity {
 		googleAcc.setIcon(googleIcon);
 		fbAcc.setIcon(fbIcon);
 		
-		ourAcc.setOnPreferenceClickListener(new OurAccOnClickListener());
+		ourSignIn.setOnPreferenceClickListener(new OurAccOnClickListener(false));
+		ourRegister.setOnPreferenceClickListener(new OurAccOnClickListener(true));
 		googleAcc.setOnPreferenceClickListener(new GoogleOnClickListener());
 		fbAcc.setOnPreferenceClickListener(new FacebookOnClickListener());
 	}
 	
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		switch (resultCode) {
+		case RESULT_OK:
+			startActivity(new Intent(this, MainScreen.class));
+			finish();
+			break;
+		case RESULT_ERROR:
+			Toast.makeText(
+					this, 
+					data.getStringExtra(ERROR_DESCRIPTION), 
+					Toast.LENGTH_LONG
+					).show();
+			break;
+		default:
+			break;
+		}
+		super.onActivityResult(requestCode, resultCode, data);
+	}
+	
 	
 	private class GoogleOnClickListener implements OnPreferenceClickListener {
-
 		public boolean onPreferenceClick(Preference preference) {
 			Intent forward = new Intent(getApplicationContext(), SyncAuth.class);
-			
-			String[] authorities = new String[]{
-					getString(R.string.authority_positions), 
-					getString(R.string.authority_bookmarks), 
-					getString(R.string.authority_settings)
-					};
-			
-			forward.putExtra(android.provider.Settings.EXTRA_AUTHORITIES, authorities);
-			startActivity(forward);
-			
-			finish();
+			startActivityForResult(forward, GOOGLE_REQUEST_CODE);
+			return true;
+		}
+	}
+	
+	private class FacebookOnClickListener implements OnPreferenceClickListener {
+		public boolean onPreferenceClick(Preference preference) {
+			Intent forward = new Intent(AuthSelectActivity.this, AuthFacebook.class);
+			startActivityForResult(forward, FACEBOOK_REQUEST_CODE);
 			return true;
 		}
 	}
 	
 	private class OurAccOnClickListener implements OnPreferenceClickListener {
-		public boolean onPreferenceClick(Preference preference) {
-			startActivity(new Intent(getApplicationContext(), AuthOur.class));
-			finish();
-			return true;
+		
+		public OurAccOnClickListener(boolean registerMode){
+			myRegisterMode = registerMode;
 		}
-	}	
-	
-	private class FacebookOnClickListener implements OnPreferenceClickListener {
-
+		
+		private boolean myRegisterMode;
+		
 		public boolean onPreferenceClick(Preference preference) {
-			Intent forward = new Intent(AuthSelectActivity.this, AuthFacebook.class);
-			
-			startActivity(forward);
-			
-			finish();
+			Intent ourAuth = new Intent(AuthSelectActivity.this, AuthOur.class);
+			ourAuth.putExtra(AuthOur.REGISTER_FLAG, myRegisterMode);
+			startActivityForResult(ourAuth, OUR_AUTH_REQUEST_CODE);
 			return true;
 		}
 	}

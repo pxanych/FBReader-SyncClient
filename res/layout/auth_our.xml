@@ -50,20 +50,7 @@
     android:layout_marginRight="12dp"
     android:text="Login"
     android:textSize="20dp"
-    android:id="@+id/buttonLogin"
-    />
-    
-    <Button 
-    android:layout_alignParentLeft="true" 
-    android:layout_below="@+id/buttonLogin" 
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_marginTop="6dp"
-    android:layout_marginLeft="12dp"
-    android:layout_marginRight="12dp"
-    android:text="Register" 
-    android:textSize="20dp"
-    android:id="@+id/buttonRegister" 
+    android:id="@+id/button"
     />
     
 </RelativeLayout>

@@ -7,7 +7,7 @@ import java.io.InputStream;
 import org.geometerplus.zlibrary.core.network.ZLNetworkException;
 import org.geometerplus.zlibrary.core.network.ZLNetworkRequest;
 import org.json.JSONException;
-import org.json.JSONArray;
+import org.json.JSONObject;
 
 
 public class Request extends ZLNetworkRequest {
@@ -22,9 +22,9 @@ public class Request extends ZLNetworkRequest {
 	}
 	
 	
-	private JSONArray myResponse;
+	private JSONObject myResponse;
 	
-	public JSONArray getResponse()
+	public JSONObject getResponse()
 	{
 		return myResponse;
 	}
@@ -50,7 +50,7 @@ public class Request extends ZLNetworkRequest {
 			jsonRespondString = new String(buf);
 		}
 		try {
-			myResponse = new JSONArray(jsonRespondString);
+			myResponse = new JSONObject(jsonRespondString);
 		} catch (JSONException e) {
 			myResponse = null;
 		}

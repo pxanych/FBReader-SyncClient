@@ -82,6 +82,15 @@ public class FBSyncAccountAuthenticatorService extends Service {
 			return reply;
 		}
 		
+		@Override
+		public Bundle getAccountRemovalAllowed(
+				AccountAuthenticatorResponse response, Account account)
+				throws NetworkErrorException {
+			Bundle result = new Bundle();
+			result.putBoolean(AccountManager.KEY_BOOLEAN_RESULT, true);
+			return result;
+		}
+		
 		public Bundle confirmCredentials(AccountAuthenticatorResponse response, Account account, Bundle options) {
 			throw new UnsupportedOperationException();
 		}

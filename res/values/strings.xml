@@ -23,16 +23,20 @@
     <string name="syncronized_settings">Syncronized FBReader settings</string>
     <string name="operation_cancelled">Operation cancelled</string>
     <string name="bad_server_response">Bad server response.</string>
-    <string name="synchronize_settings">\FBReader settings</string>
+    <string name="synchronize_settings">FBReader settings</string>
     <string name="synchronize_bookmarks">Bookmarks</string>
     <string name="synchronize_positions">Read positions</string>
     <string name="synchronized_data">Synchronized data</string>
+    <string name="logout">Logout</string>
     <string name="openid_main">TODO: openid_main en</string>
     <string name="openid_summary">TODO: openid_summary en</string>
     
-    <string name="auth">Enter</string>
+    <string name="auth">Authorization</string>
     
-    <string name="auth_our_acc">FBReader.Org account</string>
+    <string name="auth_our_acc_sign_in">Sign in</string>
+    <string name="auth_our_acc_register">Register</string>
+    <string name="auth_our_acc_do_sign_in">Sign in</string>
+    <string name="auth_our_acc_do_register">Register</string>
     <string name="login">Login</string>
     <string name="password">Password</string>
     <string name="confirm_password">Confirm password</string>
@@ -42,7 +46,7 @@
     <string name="no_account">No such account</string>
     <string name="empty_login_or_pass">Empty login or password are not allowed</string>
     
-    <string name="auth_sign_in">or sign in with</string>
+    <string name="auth_sign_in">Sign in with OpenID</string>
     <string name="auth_sign_in_google">Google</string>
     <string name="auth_sign_in_facebook">Facebook</string>
 </resources>
