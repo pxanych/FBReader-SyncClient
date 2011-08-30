@@ -78,7 +78,7 @@ public class AuthOur extends Activity {
 				return;
 			}
 			try {
-				Bundle reply = ServerInterface.our_auth_register(
+				Bundle reply = ServerInterface.ourAuthRegister(
 										AuthOur.this, 
 										account, 
 										pass
@@ -141,7 +141,7 @@ public class AuthOur extends Activity {
 			}
 				
 			try {
-				Bundle reply = ServerInterface.our_auth_login(
+				Bundle reply = ServerInterface.ourAuthLogin(
 										getApplicationContext(), 
 										account, 
 										pass

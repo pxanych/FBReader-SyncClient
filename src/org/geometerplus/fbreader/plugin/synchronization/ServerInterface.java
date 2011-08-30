@@ -72,11 +72,11 @@ public class ServerInterface{
     	return result;
     }
     
-	public static Bundle login_facebook(Context context, String account_hash) 
+	public static Bundle loginFacebook(Context context, String accountHash) 
 						throws ServerInterfaceException {
 		JSONArray args = new JSONArray();
-		args.put(account_hash);
-		args.put(Digests.hashSHA256(account_hash + SyncConstants.FACEBOOK_APP_SECRET));
+		args.put(accountHash);
+		args.put(Digests.hashSHA256(accountHash + SyncConstants.FACEBOOK_APP_SECRET));
 		return jsonToBundle(callAPI(ApiMethod.LOGIN_FACEBOOK, args));
 	}
 	
@@ -104,17 +104,17 @@ public class ServerInterface{
 	}
 	
 	
-	public static Bundle our_auth_register(Context context, String account, String password)
+	public static Bundle ourAuthRegister(Context context, String account, String password)
 					throws ServerInterfaceException {
-		return our_auth(context, account, password, ApiMethod.REGISTER);
+		return ourAuth(context, account, password, ApiMethod.REGISTER);
 	}
 
-	public static Bundle our_auth_login(Context context, String account, String password) 
+	public static Bundle ourAuthLogin(Context context, String account, String password) 
 					throws ServerInterfaceException {
-		return our_auth(context, account, password, ApiMethod.LOGIN);
+		return ourAuth(context, account, password, ApiMethod.LOGIN);
 	}
 
-	private static Bundle our_auth(Context context, String account, 
+	private static Bundle ourAuth(Context context, String account, 
 								   String password, ApiMethod method) 
 									throws ServerInterfaceException {
 		JSONArray args = new JSONArray();
@@ -133,7 +133,7 @@ public class ServerInterface{
 	private String mySignature;
 	
 	
-	public Position[] get_positions(List<String> books) throws ServerInterfaceException {
+	public Position[] getPositions(List<String> books) throws ServerInterfaceException {
 		JSONArray args = new JSONArray();
 		
 		args.put(myID);
@@ -156,7 +156,7 @@ public class ServerInterface{
 		}
 	}
 	
-	public String[] set_positions(List<Position> position_list) 
+	public String[] setPositions(List<Position> position_list) 
 				throws ServerInterfaceException {
 		
 		JSONArray args = new JSONArray();
@@ -203,8 +203,8 @@ public class ServerInterface{
 	}
 	
 	private enum ApiMethod {
-		SET_POSITIONS("set_positions"),//
-		GET_POSITIONS("get_positions"),//
+		SET_POSITIONS("set_positions"),
+		GET_POSITIONS("get_positions"),
         REGISTER("register"),
         LOGIN("login"),
         LOGIN_FACEBOOK("login_facebook");

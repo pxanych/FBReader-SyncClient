@@ -76,30 +76,62 @@ public class FBSettings extends PreferenceActivity {
 	
 	private class LogoutClickListener implements OnPreferenceClickListener {
 		public boolean onPreferenceClick(Preference preference) {
-			AccountManager accountManager = AccountManager.get(getApplicationContext());
-			String accountType = getApplicationContext().getString(R.string.account_type);
-			Account account = accountManager.getAccountsByType(accountType)[0];
-			AccountManagerFuture<Boolean> result = 
-				accountManager.removeAccount(account, null, null);
 			try {
-				if (result.getResult()){
+				AccountRemover remover = new AccountRemover();
+				remover.start();
+				synchronized (remover) {
+					remover.wait();
+				}				
+				if (remover.getResult()){
 					startActivity(new Intent(FBSettings.this, AuthSelectActivity.class));
 					finish();
 				} else {
 					Toast.makeText(FBSettings.this, "Can't delete", Toast.LENGTH_LONG).show();
 				}
 			}
-			catch (AuthenticatorException e){
-				Toast.makeText(FBSettings.this, e.getMessage(), Toast.LENGTH_LONG).show();
-			}
-			catch (IOException e){
-				Toast.makeText(FBSettings.this, e.getMessage(), Toast.LENGTH_LONG).show();
-			}
-			catch (OperationCanceledException e){
-				Toast.makeText(FBSettings.this, e.getMessage(), Toast.LENGTH_LONG).show();
+			catch (InterruptedException e) {
+				Toast.makeText(
+						FBSettings.this, 
+						"Can't delete: " + e.getMessage(), 
+						Toast.LENGTH_LONG
+						).show();
 			}
 			return true;
 			
+		}
+	
+	
+		private class AccountRemover extends Thread {
+			
+			private boolean myResult;
+			
+			@Override
+			public synchronized void run() {
+				AccountManager accountManager = AccountManager.get(getApplicationContext());
+				String accountType = getApplicationContext().getString(R.string.account_type);
+				Account account = accountManager.getAccountsByType(accountType)[0];
+				AccountManagerFuture<Boolean> result = 
+					accountManager.removeAccount(account, null, null);
+				try {
+					myResult = result.getResult();
+					this.notifyAll();
+					return;
+				}
+				catch (AuthenticatorException e){
+					Toast.makeText(FBSettings.this, e.getMessage(), Toast.LENGTH_LONG).show();
+				}
+				catch (IOException e){
+					Toast.makeText(FBSettings.this, e.getMessage(), Toast.LENGTH_LONG).show();
+				}
+				catch (OperationCanceledException e){
+					Toast.makeText(FBSettings.this, e.getMessage(), Toast.LENGTH_LONG).show();
+				}
+				myResult = false;
+			}
+			
+			public boolean getResult() {
+				return myResult;
+			}
 		}
 	}
 }

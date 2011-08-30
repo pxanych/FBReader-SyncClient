@@ -101,7 +101,7 @@ public class FBSyncPositionsService extends FBSyncBaseService {
 			
 			String[] reply;
 			try {
-				reply = myServerInterface.set_positions(positions);
+				reply = myServerInterface.setPositions(positions);
 			} 
 			catch (ServerInterfaceException e) {
 				Log.e("com.sync", e.getMessage() + ", caused by: " + 
@@ -134,7 +134,7 @@ public class FBSyncPositionsService extends FBSyncBaseService {
 			}
 			
 			try {
-				Position[] positions = myServerInterface.get_positions(books);
+				Position[] positions = myServerInterface.getPositions(books);
 				for (Position position : positions) {
 					ContentValues values = new ContentValues();
 					String[] positionParts = position.toString().split("&", 3);
