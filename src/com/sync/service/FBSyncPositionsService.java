@@ -127,7 +127,7 @@ public class FBSyncPositionsService extends FBSyncBaseService {
 			int hashColumnIndex = c.getColumnIndex(Book.HASH);
 			LinkedList<String> books = new LinkedList<String>();
 			for (int i = 0; i < c.getCount(); ++i) {
-				books.push(c.getString(hashColumnIndex));
+				books.add(c.getString(hashColumnIndex));
 				c.moveToNext();
 			}
 			

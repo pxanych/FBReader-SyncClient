@@ -1,5 +1,6 @@
 code review:
 
+* com.sync => org.geometerplus.fbreader.plugin.synchronization
 * res/values/strings.xml:
    ** здесь должны лежать строки, зависимые от языка; к таким вряд ли относится строка FBSYNC_SETTINGS (и другие подобные)
        +fixed
