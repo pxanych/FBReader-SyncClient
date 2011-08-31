@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Синхронизация</string>
-    <string name="sync_menu_item">Синхронизация</string>
+    <string name="app_name">FBReader Sync Plugin</string>
+    <string name="sync_menu_item">Sync Plugin</string>
     <string name="auth_failed">Ошибка авторизации</string>
     <string name="auth_failed_server">Сбой авторизции из-за ошибки на сервере. Повторите авторизацию позже.</string>
     <string name="internal_error">Внитренняя ошибка: </string>

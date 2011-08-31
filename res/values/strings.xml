@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Synchronization</string>
-    <string name="sync_menu_item">Synchronization</string>
+    <string name="app_name">FBReader Sync Plugin</string>
+    <string name="sync_menu_item">Sync Plugin</string>
     <string name="auth_failed">Authentication failed.</string>
     <string name="auth_failed_server">Authentication failed due to server error. Please retry later.</string>
     <string name="internal_error">Internal error: </string>
