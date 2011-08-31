@@ -6,6 +6,8 @@ import org.geometerplus.fbreader.plugin.synchronization.ServerInterface.ServerIn
 import android.accounts.AccountManager;
 import android.app.Activity;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -17,15 +19,19 @@ import android.widget.RelativeLayout.LayoutParams;
 public class AuthOur extends Activity {
 	
 	public static final String REGISTER_FLAG = "register_mode";
+	public static final String ERROR_MESSAGE_KEY = "error_message";
 	private EditText myLogin;
 	private EditText myPassword;
 	private EditText myPasswordConfirm;
 	private Button myButton;
+	private ErrorHandler myHandler;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.auth_our);
+		
+		myHandler = new ErrorHandler();
 		
 		myLogin = (EditText)findViewById(R.id.loginEditText);
 		myPassword = (EditText)findViewById(R.id.passwordEditText);
@@ -78,47 +84,16 @@ public class AuthOur extends Activity {
 				return;
 			}
 			try {
-				Bundle reply = ServerInterface.ourAuthRegister(
-										AuthOur.this, 
-										account, 
-										pass
-										);
-				if (reply.containsKey(ServerInterface.SIG_KEY)) {
-					SyncAuth.addAccount(
-							AuthOur.this, 
-							AccountManager.get(AuthOur.this), 
-							account, 
-							reply.getString(ServerInterface.SIG_KEY)
-							);
-					setResult(RESULT_OK);
-					finish();
-				} else {
-					setResult(RESULT_CANCELED);
-					switch (reply.getInt(ServerInterface.ERROR_CODE)) {
-					case ServerInterface.DB_ERROR:
-						Toast.makeText(
-								AuthOur.this,
-								getString(R.string.internal_error), 
-								Toast.LENGTH_LONG
-								).show();
-						return;
-					case ServerInterface.ALREADY_REGISTERED:
-						Toast.makeText(
-								AuthOur.this,
-								getString(R.string.already_registered), 
-								Toast.LENGTH_LONG
-								).show();
-							return;
-					}
-				}
+				WaitDialog dialog = new WaitDialog(AuthOur.this);
+				Thread authThread = new RegisterThread(dialog, account, pass);
+				dialog.setBackgroundThread(authThread);
+				authThread.start();
+				dialog.show();
 			}
-			catch (ServerInterfaceException e) {
-				Toast.makeText(
-						AuthOur.this,
-						getString(R.string.internal_error) + ": " + e.getMessage(), 
-						Toast.LENGTH_LONG
-						).show();
+			catch (RuntimeException e){
+				e.printStackTrace();
 			}
+			
 		}
 	}
     
@@ -139,53 +114,163 @@ public class AuthOur extends Activity {
 						Toast.LENGTH_SHORT).show();
 				return;
 			}
-				
 			try {
+				WaitDialog dialog = new WaitDialog(AuthOur.this);
+				Thread authThread = new LoginThread(dialog, account, pass);
+				dialog.setBackgroundThread(authThread);
+				authThread.start();
+				dialog.show();
+			}
+			catch (RuntimeException e){
+				e.printStackTrace();
+				finish();
+			}
+		}
+	}
+    
+    
+    private class LoginThread extends Thread {
+    	
+    	protected WaitDialog myDialog;
+    	protected String myAccount;
+    	protected String myPassword;
+    	
+    	public LoginThread(WaitDialog dialog, String account, String password) {
+			super();
+			myDialog = dialog;
+			myAccount = account;
+			myPassword = password;
+		}
+    	
+    	protected void cancel() {
+    		setResult(RESULT_CANCELED);
+			myDialog.dismiss();
+			finish();
+    	}
+    	
+    	protected void error(int code, String errorMessage) {
+    		Bundle errorData = new Bundle();
+			errorData.putString(ERROR_MESSAGE_KEY, errorMessage);
+			Message msg = Message.obtain();
+			msg.setTarget(myHandler);
+			msg.what = code;
+			msg.setData(errorData);
+			msg.sendToTarget();
+			myDialog.dismiss();
+    	}
+
+    	@Override
+    	public void run() {
+    		try {
 				Bundle reply = ServerInterface.ourAuthLogin(
 										getApplicationContext(), 
-										account, 
-										pass
+										myAccount, 
+										myPassword
 										);
+				if (isInterrupted()) {
+					cancel();
+					return;
+				}
 				if (reply.containsKey(ServerInterface.SIG_KEY)) {
 					SyncAuth.addAccount(
 							AuthOur.this, 
 							AccountManager.get(AuthOur.this), 
-							account, 
+							myAccount, 
+							reply.getString(ServerInterface.SIG_KEY)
+							);
+					setResult(RESULT_OK);
+					finish();
+				} else { 
+					error(
+							reply.getInt(ServerInterface.ERROR_CODE),
+							reply.getString(ServerInterface.ERROR_MESSAGE)
+							);
+				}
+			}
+			catch (ServerInterfaceException e) {
+				error(-1, e.getMessage());
+			}
+    	}
+    }
+
+
+	private class RegisterThread extends LoginThread {
+		
+		public RegisterThread(WaitDialog dialog, String account, String password) {
+			super(dialog, account, password);
+		}
+	
+		@Override
+		public void run() {
+			try {
+				Bundle reply = ServerInterface.ourAuthRegister(
+										AuthOur.this, 
+										myAccount, 
+										myPassword
+										);
+				if (isInterrupted()) {
+					cancel();
+					return;
+				}
+				if (reply.containsKey(ServerInterface.SIG_KEY)) {
+					SyncAuth.addAccount(
+							AuthOur.this, 
+							AccountManager.get(AuthOur.this), 
+							myAccount, 
 							reply.getString(ServerInterface.SIG_KEY)
 							);
 					setResult(RESULT_OK);
 					finish();
 				} else {
-					setResult(RESULT_CANCELED);
-					switch (reply.getInt(ServerInterface.ERROR_CODE)) {
-					case ServerInterface.DB_ERROR:
-						Toast.makeText(
-								AuthOur.this,
-								getString(R.string.internal_error), 
-								Toast.LENGTH_LONG
-								).show();
-						return;
-					case ServerInterface.NO_ACCOUNT:
-						Toast.makeText(
-								AuthOur.this,
-								getString(R.string.no_account), 
-								Toast.LENGTH_LONG
-								).show();
-						return;
-					case ServerInterface.WRONG_PW:
-						Toast.makeText(
-								AuthOur.this,
-								getString(R.string.wrong_pw), 
-								Toast.LENGTH_LONG
-								).show();
-						return;
-					}
+					error(
+							reply.getInt(ServerInterface.ERROR_CODE),
+							reply.getString(ServerInterface.ERROR_MESSAGE)
+							);
 				}
 			}
 			catch (ServerInterfaceException e) {
+				error(-1, e.getMessage());
+			}
+		}
+	}
+	
+	
+	private class ErrorHandler extends Handler {
+		@Override
+		public void handleMessage(Message msg) {
+			switch (msg.what) {
+			case ServerInterface.DB_ERROR:
 				Toast.makeText(
 						AuthOur.this,
-						getString(R.string.internal_error) + ": " + e.getMessage(), 
+						getString(R.string.internal_error), 
+						Toast.LENGTH_LONG
+						).show();
+				break;
+			case ServerInterface.NO_ACCOUNT:
+				Toast.makeText(
+						AuthOur.this,
+						getString(R.string.no_account), 
+						Toast.LENGTH_LONG
+						).show();
+				break;
+			case ServerInterface.WRONG_PW:
+				Toast.makeText(
+						AuthOur.this,
+						getString(R.string.wrong_pw), 
+						Toast.LENGTH_LONG
+						).show();
+				break;
+			case ServerInterface.ALREADY_REGISTERED:
+				Toast.makeText(
+						AuthOur.this,
+						getString(R.string.already_registered), 
+						Toast.LENGTH_LONG
+						).show();
+				break;
+			default:
+				Toast.makeText(
+						AuthOur.this,
+						msg.getData().getString(ERROR_MESSAGE_KEY), 
 						Toast.LENGTH_LONG
 						).show();
 			}

@@ -1,9 +1,12 @@
 package org.geometerplus.fbreader.plugin.synchronization;
 
+
 import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.view.Window;
+
+
 public class WaitDialog extends Dialog {
 	
 	private Thread myBackgroundThread = null;
@@ -15,7 +18,7 @@ public class WaitDialog extends Dialog {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		boolean featureGranted = requestWindowFeature(Window.FEATURE_NO_TITLE);
-		setContentView(R.layout.wail_dialog);
+		setContentView(R.layout.wait_dialog);
 		if (featureGranted) {
 			getWindow().setFeatureInt(Window.FEATURE_NO_TITLE, 1);
 		}

@@ -60,6 +60,7 @@ public class AuthFacebook extends Activity {
 			}
 			catch (RuntimeException e){
 				e.printStackTrace();
+				finish();
 			}
 		}
 		
@@ -84,7 +85,7 @@ public class AuthFacebook extends Activity {
 			myDialog.dismiss();
 			finish();
     	}
-    	
+
     	@Override
     	public void run() {
     		try {
@@ -93,11 +94,11 @@ public class AuthFacebook extends Activity {
 				JSONObject jsonReply = new JSONObject(jsonreply);
 				String acc_hash = Digests.hashSHA256(jsonReply.getString("id"));
 				Bundle reply = ServerInterface.loginFacebook(context, acc_hash);
+				if (isInterrupted()) {
+					cancel();
+					return;
+				}
 				if (reply.containsKey(ServerInterface.SIG_KEY)) {
-					if (interrupted()) {
-						cancel();
-						return;
-					}
 					SyncAuth.addAccount(
 							context, 
 							AccountManager.get(context), 
@@ -133,5 +134,4 @@ public class AuthFacebook extends Activity {
 			}
     	}
     }
-
 }

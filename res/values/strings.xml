@@ -40,7 +40,7 @@
     <string name="auth_our_acc_register">Register</string>
     <string name="auth_our_acc_do_sign_in">Sign in</string>
     <string name="auth_our_acc_do_register">Register</string>
-    <string name="login">Login</string>
+    <string name="login">User name</string>
     <string name="password">Password</string>
     <string name="confirm_password">Confirm password</string>
     <string name="not_match">Passwords do not match</string>
