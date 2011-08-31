@@ -14,7 +14,6 @@ import org.json.JSONObject;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.os.Debug;
 
 
 public class ServerInterface{
@@ -88,9 +87,6 @@ public class ServerInterface{
 		try {
 			query.put(METHOD_KEY, method);
 			query.put(ARGS_KEY, args);
-			/////////////////////////
-			Debug.waitForDebugger();
-			/////////////////////////
 			Request request = new Request(API_URL, null, query.toString());
 			networkManager.perform(request);
 			return request.getResponse();
