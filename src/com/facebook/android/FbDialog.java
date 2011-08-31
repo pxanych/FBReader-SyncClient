@@ -38,7 +38,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.facebook.android.Facebook.DialogListener;
-import com.sync.R;
+import org.geometerplus.fbreader.plugin.synchronization.R;
 
 public class FbDialog extends Dialog {
 

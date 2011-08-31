@@ -5,11 +5,16 @@ android:title="@string/auth"
 android:key="@string/auth_key"
 >    
 	<Preference 
-	android:key="@string/auth_our_acc_key" 
-	android:title="@string/auth_our_acc"
+	android:key="@string/auth_our_acc_sign_in_key" 
+	android:title="@string/auth_our_acc_sign_in"
 	/>
 	
-	<PreferenceCategory 
+	<Preference 
+	android:key="@string/auth_our_acc_register_key" 
+	android:title="@string/auth_our_acc_register"
+	/>
+	
+	<PreferenceScreen
 	android:title="@string/auth_sign_in">
 		    
 		    <com.android.settings.IconPreferenceScreen 
@@ -22,6 +27,6 @@ android:key="@string/auth_key"
 			android:title="@string/auth_sign_in_facebook"
 			/>
 		
-	</PreferenceCategory>
+	</PreferenceScreen>
 	
 </PreferenceScreen>

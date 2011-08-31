@@ -1,13 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="account_type">com.sync.account</string>
-    <string name="settings_filename">FBSYNC_SETTINGS</string>
-    <string name="settings_auth">AUTH</string>
-    <string name="settings_id">ID</string>
-    <string name="settings_sig">SIG</string>
-    <string name="host">https://data.fbreader.org/sync/</string>
-    <string name="auth_url">https://data.fbreader.org/sync/?sync_respondtype=url</string>
-    <string name="api_url">https://data.fbreader.org/sync/sync_api_interface.php5</string>
     <string name="authority_positions">com.sync.fbdata.positions</string>
     <string name="authority_bookmarks">com.sync.fbdata.bookmarks</string>
     <string name="authority_settings">com.sync.fbdata.settings</string>
@@ -16,11 +9,11 @@
     <string name="checkbox_settings">sync_settings</string>
     <string name="checkbox_bookmarks">sync_bookmarks</string>
     <string name="checkbox_positions">sync_positions</string>
+    <string name="preference_logout">preference_logout</string>
     
     <string name="auth_key">auth_key</string>
-    <string name="auth_our_acc_key">our_acc_preference</string>
+    <string name="auth_our_acc_sign_in_key">our_acc_sign_in_preference</string>
+    <string name="auth_our_acc_register_key">our_acc_register_preference</string>
     <string name="auth_google_key">acc_google_preference</string>
     <string name="auth_facebook_key">acc_facebook_preference</string>
-    
-    <string name="facebook_app_id">108840949218941</string>
 </resources>

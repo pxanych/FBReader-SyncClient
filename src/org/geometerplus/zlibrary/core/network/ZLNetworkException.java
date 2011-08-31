@@ -19,7 +19,6 @@
 
 package org.geometerplus.zlibrary.core.network;
 
-import org.geometerplus.zlibrary.core.resources.ZLResource;
 
 public class ZLNetworkException extends Exception {
 	private static final long serialVersionUID = 4272384299121648643L;
@@ -41,58 +40,11 @@ public class ZLNetworkException extends Exception {
 	public static final String ERROR_HOST_CANNOT_BE_REACHED = "hostCantBeReached";
 	public static final String ERROR_CONNECTION_REFUSED = "connectionRefused";
 
-	private static ZLResource getResource() {
-		return ZLResource.resource("dialog").getResource("networkError");
+	public ZLNetworkException(String message, Throwable cause) {
+		super(message, cause);
 	}
-
-	private static String errorMessage(String key) {
-		if (key == null) {
-			return "null";
-		}
-		return getResource().getResource(key).getValue();
-	}
-
-	private static String errorMessage(String key, String arg) {
-		if (key == null) {
-			return "null";
-		}
-		if (arg == null) {
-			arg = "null";
-		}
-		return getResource().getResource(key).getValue().replace("%s", arg);
-	}
-
-	final private String myCode;
-
-	public ZLNetworkException(boolean useAsMessage, String str, Throwable cause) {
-		super(useAsMessage ? str : errorMessage(str), cause);
-		myCode = useAsMessage ? null : str;
-	}
-
-	public ZLNetworkException(boolean useAsMessage, String str) {
-		super(useAsMessage ? str : errorMessage(str));
-		myCode = useAsMessage ? null : str;
-	}
-
-	public ZLNetworkException(String code, Throwable cause) {
-		this(false, code, cause);
-	}
-
-	public ZLNetworkException(String code) {
-		this(false, code);
-	}
-
-	public ZLNetworkException(String code, String arg, Throwable cause) {
-		super(errorMessage(code, arg), cause);
-		myCode = code;
-	}
-
-	public ZLNetworkException(String code, String arg) {
-		super(errorMessage(code, arg));
-		myCode = code;
-	}
-
-	public String getCode() {
-		return myCode;
+	
+	public ZLNetworkException(String message) {
+		super(message);
 	}
 }
