@@ -23,6 +23,9 @@ public class FBReaderApiListener implements ApiListener {
 	
 	public void onEvent(int event) {
 		Intent serviceIntent = new Intent(myContext, FBSyncPositionsService.class);
+		// TODO debug code
+		serviceIntent.putExtra("timestamp", System.nanoTime());
+		//
 		switch (event) {
 		case ApiListener.EVENT_READ_MODE_OPENED:
 			serviceIntent.putExtra(

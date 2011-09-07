@@ -40,13 +40,13 @@ public class FBData {
 		@Override
 		public void onCreate(SQLiteDatabase db) {
 			String bookQuery = "create table `" + Book.TABLE + "` (" +
-					Book.BOOK_ID + " int, " + 
-					Book.HASH + " varchar(64) NOT NULL, " +
+					Book.BOOK_ID + " int primary key, " + 
+					Book.HASH + " varchar(64) unique not null, " +
 					Book.TITLE + " text, " +
 					Book.AUTHOR + " text, " +
 					Book.POSITION + " varchar(64), " +
-					Book.TIMESTAMP + " bigint NOT NULL, " +
-					Book.NEEDS_SYNC + " int );";
+					Book.TIMESTAMP + " bigint not null, " +
+					Book.NEEDS_SYNC + " int);";
 			db.execSQL(bookQuery);
 		}
 		

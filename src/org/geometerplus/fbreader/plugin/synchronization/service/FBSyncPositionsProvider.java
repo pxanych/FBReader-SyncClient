@@ -62,20 +62,21 @@ public class FBSyncPositionsProvider extends FBSyncBaseContentProvider {
 	
 	
 	@Override
-	public Uri insert(Uri uri, ContentValues initialValues) {
+	public Uri insert(Uri uri, ContentValues values) {
 		if (ourUriMatcher.match(uri) == -1) {
 			throw new IllegalArgumentException("Unknown uri:" + uri);	
 		}
-		
-		ContentValues values;
-		if (initialValues != null) {
-			values = new ContentValues(initialValues);
-		} else {
+		if (values == null) {
 			return null;
 		}
 		
 		SQLiteDatabase db = myFBData.myDatabaseHelper.getWritableDatabase();
-		long rowId = db.insert(Book.TABLE, null, values);
+		long rowId = db.insertWithOnConflict(
+				Book.TABLE, 
+				null, 
+				values, 
+				SQLiteDatabase.CONFLICT_REPLACE
+				);
 		if (rowId > 0) {
 			Uri noteUri = ContentUris.withAppendedId(Book.CONTENT_URI, rowId);
 			getContext().getContentResolver().notifyChange(noteUri, null);
@@ -91,7 +92,8 @@ public class FBSyncPositionsProvider extends FBSyncBaseContentProvider {
 		}
 		String[] projection = new String[] {
 				Book.HASH,
-				Book.TIMESTAMP
+				Book.TIMESTAMP,
+				Book.POSITION
 		};
 		
 		int count = 0;
@@ -103,23 +105,22 @@ public class FBSyncPositionsProvider extends FBSyncBaseContentProvider {
 		if (canPerform) {
 			long newTimestamp = values.getAsLong(Book.TIMESTAMP);
 			String hash = values.getAsString(Book.HASH);
+			//String newPosition = values.getAsString(Book.POSITION);
 			
-			Cursor bookToUpdate = query(Book.CONTENT_URI, projection, 
+			Cursor cur = query(Book.CONTENT_URI, projection, 
 					Book.HASH + " = '" + hash + "'", null, null);
-			if (bookToUpdate.getCount() > 0) {
-				long oldTimestamp = 
-					bookToUpdate.getLong(bookToUpdate.getColumnIndex(Book.TIMESTAMP));
-				if (newTimestamp > oldTimestamp) {
+			if (cur.moveToFirst()) {
+				long oldTimestamp = cur.getLong(cur.getColumnIndex(Book.TIMESTAMP));
+				//String oldPosition = cur.getString(cur.getColumnIndex(Book.POSITION));
+				if (newTimestamp > oldTimestamp
+					//&& newPosition > oldPosition	
+				) {
 					SQLiteDatabase db = myFBData.myDatabaseHelper.getWritableDatabase();
 					count = db.update(Book.TABLE, values, where, whereArgs);
+					getContext().getContentResolver().notifyChange(uri, null);
 				}
 			}
-//			 else {
-//					SQLiteDatabase db = myFBData.myDatabaseHelper.getWritableDatabase();
-//					count = (int) db.insert(Book.TABLE, null, values);
-//				}
 		}
-		getContext().getContentResolver().notifyChange(uri, null);
 		return count;
 	}
 	

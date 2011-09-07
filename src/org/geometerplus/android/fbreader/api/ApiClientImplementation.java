@@ -6,8 +6,11 @@ package org.geometerplus.android.fbreader.api;
 
 import java.util.*;
 
+import org.geometerplus.fbreader.plugin.synchronization.SyncConstants;
+
 import android.content.*;
 import android.os.IBinder;
+import android.util.Log;
 
 public class ApiClientImplementation implements ServiceConnection, Api, ApiMethods {
 	public static interface ConnectionListener {
@@ -34,6 +37,9 @@ public class ApiClientImplementation implements ServiceConnection, Api, ApiMetho
 			final int code = intent.getIntExtra(EVENT_CODE, -1);
 			if (code != -1) {
 				synchronized (myApiListeners) {
+					// TODO debug code
+					Log.i(SyncConstants.TAG, "Received an event with code: " + code);
+					//
 					for (ApiListener l : myApiListeners) {
 						l.onEvent(code);
 					}
