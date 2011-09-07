@@ -69,20 +69,20 @@ public class FBSyncPositionsProvider extends FBSyncBaseContentProvider {
 		if (values == null) {
 			return null;
 		}
-		
 		SQLiteDatabase db = myFBData.myDatabaseHelper.getWritableDatabase();
-		long rowId = db.insertWithOnConflict(
-				Book.TABLE, 
-				null, 
-				values, 
-				SQLiteDatabase.CONFLICT_REPLACE
-				);
-		if (rowId > 0) {
-			Uri noteUri = ContentUris.withAppendedId(Book.CONTENT_URI, rowId);
-			getContext().getContentResolver().notifyChange(noteUri, null);
-			return noteUri;
+		long rowId = db.insert(Book.TABLE, null, values);
+		
+		if (rowId == -1) {
+			String hash = values.getAsString(Book.HASH);
+			int count = db.update(Book.TABLE, values, Book.HASH + " = '" + hash + "'", null);
+			if (count == 0) {
+				return null;
+			}
 		}
-		return null;
+
+		Uri noteUri = ContentUris.withAppendedId(Book.CONTENT_URI, rowId);
+		getContext().getContentResolver().notifyChange(noteUri, null);
+		return noteUri;
 	}
 	
 	@Override
@@ -105,16 +105,17 @@ public class FBSyncPositionsProvider extends FBSyncBaseContentProvider {
 		if (canPerform) {
 			long newTimestamp = values.getAsLong(Book.TIMESTAMP);
 			String hash = values.getAsString(Book.HASH);
-			//String newPosition = values.getAsString(Book.POSITION);
+			Position newPosition = 
+				new Position(hash, values.getAsString(Book.POSITION), newTimestamp);
 			
 			Cursor cur = query(Book.CONTENT_URI, projection, 
 					Book.HASH + " = '" + hash + "'", null, null);
 			if (cur.moveToFirst()) {
+				String position = cur.getString(cur.getColumnIndex(Book.POSITION));
+				String oldHash = cur.getString(cur.getColumnIndex(Book.HASH));
 				long oldTimestamp = cur.getLong(cur.getColumnIndex(Book.TIMESTAMP));
-				//String oldPosition = cur.getString(cur.getColumnIndex(Book.POSITION));
-				if (newTimestamp > oldTimestamp
-					//&& newPosition > oldPosition	
-				) {
+				Position oldPosition = new Position(oldHash, position, oldTimestamp);
+				if (newPosition.compare(oldPosition) > 0) {
 					SQLiteDatabase db = myFBData.myDatabaseHelper.getWritableDatabase();
 					count = db.update(Book.TABLE, values, where, whereArgs);
 					getContext().getContentResolver().notifyChange(uri, null);
@@ -142,10 +143,16 @@ public class FBSyncPositionsProvider extends FBSyncBaseContentProvider {
 		public final TextPosition myPosition;
 		public final long myTimestamp;
 		
-		public Position(String hash, TextPosition position, int timestamp){
+		public Position(String hash, TextPosition position, long timestamp){
 			myHash = hash;
 			myTimestamp = timestamp;
 			myPosition = position;
+		}
+		
+		public Position(String hash, String position, long timestamp){
+			myHash = hash;
+			myTimestamp = timestamp;
+			myPosition = stringToTextPosition(position);
 		}
 		
 		public static String textPositionToString(TextPosition textPosition) {
@@ -153,6 +160,23 @@ public class FBSyncPositionsProvider extends FBSyncBaseContentProvider {
 			ret += '&' + String.valueOf(textPosition.ElementIndex);
 			ret += '&' + String.valueOf(textPosition.CharIndex);
 			return ret;
+		}
+		
+		public static TextPosition stringToTextPosition(String str) {
+			String[] parts = str.split("&");
+			if (parts.length < 3) {
+				return null;
+			}
+			try {
+				return new TextPosition(
+						Integer.parseInt(parts[0]), 
+						Integer.parseInt(parts[1]), 
+						Integer.parseInt(parts[2])
+						);
+			}
+			catch (NumberFormatException e) {
+				return null;
+			}
 		}
 		
 		public Position(String stringValue) {
@@ -182,6 +206,25 @@ public class FBSyncPositionsProvider extends FBSyncBaseContentProvider {
 			stringValue += myPosition.ElementIndex + "&";
 			stringValue += myPosition.CharIndex;
 			return stringValue;
+		}
+		
+		public int compare(Position cmp) {
+			if (cmp == null) {
+				return 1;
+			}
+			if (myPosition.ParagraphIndex > cmp.myPosition.ParagraphIndex) {
+				return 1;
+			} else if (myPosition.ElementIndex > cmp.myPosition.ElementIndex) {
+				return 1;
+			} else if (myPosition.CharIndex > cmp.myPosition.CharIndex) {
+				return 1;
+			} else if (myTimestamp > cmp.myTimestamp) {
+				return 1;
+			} else if (myTimestamp == cmp.myTimestamp) {
+				return 0;
+			} else {
+				return -1;
+			}
 		}
 	}
 	

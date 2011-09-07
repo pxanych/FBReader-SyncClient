@@ -27,6 +27,7 @@ import android.content.Intent;
 import android.content.SyncResult;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.os.Debug;
 import android.util.Log;
 
 public class FBSyncPositionsService extends FBSyncBaseService implements ConnectionListener{
@@ -201,6 +202,7 @@ private class ServiceStarter extends Thread {
 			String[] projection = new String[] {
 					Book.BOOK_ID,
 					Book.HASH,
+					Book.POSITION,
 					Book.TIMESTAMP
 			};
 			
@@ -221,9 +223,16 @@ private class ServiceStarter extends Thread {
 						projection, 
 						Book.HASH + " = '" + hash + "'", null, null);
 				int timestampColumnIndex = c.getColumnIndex(Book.TIMESTAMP);
+				int positionColumnIndex = c.getColumnIndex(Book.POSITION);
+				int hashColumnIndex = c.getColumnIndex(Book.HASH);
+				
 				if(c.moveToFirst()) {
-					long localTimestamp = c.getLong(timestampColumnIndex);
-					if (localTimestamp < position.myTimestamp) {
+					Position localPosition = new Position(
+							c.getString(hashColumnIndex),
+							c.getString(positionColumnIndex),
+							c.getLong(timestampColumnIndex)
+							);
+					if (position.compare(localPosition) > 0) {
 						return position.myPosition;
 					}
 				}

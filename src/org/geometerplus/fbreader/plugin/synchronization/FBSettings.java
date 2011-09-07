@@ -68,7 +68,7 @@ public class FBSettings extends PreferenceActivity {
 			String accountType = myContext.getString(R.string.account_type);
 			int syncable = (pref.isChecked()) ? 1 : 0;
 			Account account = AccountManager.get(myContext).getAccountsByType(accountType)[0];
-			ContentResolver.addPeriodicSync(account, myAuthority, new Bundle(), 1800);
+			// TODO ContentResolver.addPeriodicSync(account, myAuthority, new Bundle(), 1800);
 			ContentResolver.setSyncAutomatically(account, myAuthority, syncable == 1);
 			return true;
 		}

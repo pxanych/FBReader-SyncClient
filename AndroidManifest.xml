@@ -128,7 +128,8 @@ android:versionName="1.0"
  			/>
 		</service>
 		
-		<provider android:authorities="@string/authority_positions"
+		<provider 
+		android:authorities="com.sync.fbdata.positions"
         android:enabled="true"
         android:exported="true"
         android:label="@string/synchronize_positions"
@@ -137,7 +138,7 @@ android:versionName="1.0"
         android:multiprocess="false">
         </provider>
         
-        <provider android:authorities="@string/authority_bookmarks"
+        <provider android:authorities="com.sync.fbdata.bookmarks"
         android:enabled="true"
         android:exported="true"
         android:label="@string/synchronize_bookmarks"
@@ -146,7 +147,7 @@ android:versionName="1.0"
         android:multiprocess="false">
         </provider>
         
-        <provider android:authorities="@string/authority_settings"
+        <provider android:authorities="com.sync.fbdata.settings"
         android:exported="true"
         android:label="@string/synchronize_settings"
         android:name=".service.FBSyncSettingsProvider"

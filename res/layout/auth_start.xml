@@ -2,8 +2,8 @@
 <RelativeLayout android:id="@+id/RelativeLayout1"
   xmlns:android="http://schemas.android.com/apk/res/android"
   android:orientation="vertical"
-  android:layout_width="match_parent" 
-  android:layout_height="match_parent" 
+  android:layout_width="fill_parent" 
+  android:layout_height="fill_parent" 
   android:weightSum="1" 
   android:gravity="top">
     <TextView android:layout_alignParentLeft="true" android:layout_alignParentTop="true" android:textAppearance="?android:attr/textAppearanceMedium" android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/screen_description" android:text="@string/openid_main"></TextView>
@@ -14,7 +14,11 @@
     android:id="@+id/relativeLayout2" 
     android:layout_below="@+id/button_continue"
 	android:layout_alignParentBottom="true">
-        <Button android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/auth_start_button_text" android:id="@+id/button_continue"></Button>
+        <Button 
+        android:layout_width="fill_parent" 
+        android:layout_height="wrap_content" 
+        android:text="@string/auth_start_button_text" 
+        android:id="@+id/button_continue"/>
     </RelativeLayout>
     
 </RelativeLayout>

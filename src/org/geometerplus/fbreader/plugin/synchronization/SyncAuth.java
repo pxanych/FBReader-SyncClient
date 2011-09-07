@@ -11,6 +11,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Debug;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -46,8 +47,8 @@ public class SyncAuth extends Activity {
 		ContentResolver.setIsSyncable(account, context.getString(R.string.authority_positions), 1);
 		ContentResolver.setIsSyncable(account, context.getString(R.string.authority_bookmarks), 1);
 		ContentResolver.setIsSyncable(account, context.getString(R.string.authority_settings), 1);
-		ContentResolver.addPeriodicSync(account, context.getString(R.string.authority_positions), new Bundle(), 1800);
-		ContentResolver.addPeriodicSync(account, context.getString(R.string.authority_bookmarks), new Bundle(), 1800);
+		// TODO ContentResolver.addPeriodicSync(account, context.getString(R.string.authority_positions), new Bundle(), 1800);
+		// TODO ContentResolver.addPeriodicSync(account, context.getString(R.string.authority_bookmarks), new Bundle(), 1800);
 		ContentResolver.setSyncAutomatically(account, context.getString(R.string.authority_positions), true);
 		ContentResolver.setSyncAutomatically(account, context.getString(R.string.authority_bookmarks), true);
 		return result;
