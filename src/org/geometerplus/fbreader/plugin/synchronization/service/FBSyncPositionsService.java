@@ -3,7 +3,12 @@ package org.geometerplus.fbreader.plugin.synchronization.service;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.geometerplus.android.fbreader.api.ApiClientImplementation;
+import org.geometerplus.android.fbreader.api.ApiException;
+import org.geometerplus.android.fbreader.api.TextPosition;
+import org.geometerplus.android.fbreader.api.ApiClientImplementation.ConnectionListener;
 import org.geometerplus.fbreader.plugin.synchronization.ServerInterface;
+import org.geometerplus.fbreader.plugin.synchronization.SyncAuth;
 import org.geometerplus.fbreader.plugin.synchronization.SyncConstants;
 import org.geometerplus.fbreader.plugin.synchronization.ServerInterface.ServerInterfaceException;
 import org.geometerplus.fbreader.plugin.synchronization.service.FBData.Book;
@@ -15,17 +20,25 @@ import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.content.AbstractThreadedSyncAdapter;
 import android.content.ContentProviderClient;
+import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SyncResult;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.os.Debug;
 import android.util.Log;
 
-public class FBSyncPositionsService extends FBSyncBaseService {
+public class FBSyncPositionsService extends FBSyncBaseService implements ConnectionListener{
 	
 	private final int SYNCHRONIZED_ENTRIES_COUNT = 20;
+	public static final String FBREADER_ACTION = "action";
+	public static final int FBREADER_PULL_POSITION = 1;
+	public static final int FBREADER_PUSH_POSITION = 2;
+	public static final int FBREADER_STARTED = 3;
+	private ApiClientImplementation myFBReaderApiClient;
+	
 	
 	protected AbstractThreadedSyncAdapter getSyncAdapter() {
 		if (ourSyncAdapter == null) {
@@ -36,14 +49,69 @@ public class FBSyncPositionsService extends FBSyncBaseService {
 	
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
+		Log.i("Service", "starting");
+		if (intent.getIntExtra(FBREADER_ACTION, -1) == FBREADER_STARTED) {
+			myFBReaderApiClient = new ApiClientImplementation(this, this);
+		} else {
+			if (SyncAuth.hasAccount(this)) {
+				new ServiceStarter(intent, myFBReaderApiClient).start();
+			}
+		}
+		Log.i("Service", "ok");
+		return START_STICKY;
+	}
+	
+	
+	private class ServiceStarter extends Thread {
 		
-		return super.onStartCommand(intent, flags, startId);
+		private Intent myIntent;
+		private ApiClientImplementation myApiClient;
+		public ServiceStarter(Intent intent, ApiClientImplementation apiClient) {
+			myIntent = intent;
+			myApiClient = apiClient;
+		}
+		
+		@Override
+		public void run() {
+			try {
+				Debug.waitForDebugger();
+				FBSyncPositionsAdapter positionsAdapter = 
+					new FBSyncPositionsAdapter(FBSyncPositionsService.this);
+				TextPosition position = myApiClient.getPageStart();
+				String hash = myApiClient.getBookHash();
+				switch (myIntent.getIntExtra(FBREADER_ACTION, 0)) {
+					case FBREADER_PUSH_POSITION:
+						position = myApiClient.getPageStart();
+						positionsAdapter.pushPosition(
+								position, 
+								System.currentTimeMillis(), 
+								hash
+								);
+					case FBREADER_PULL_POSITION:
+						position = positionsAdapter.pullPosition(hash);
+						if (position != null) {
+							myApiClient.setPageStart(position);
+						}
+				}
+			}
+			catch (ApiException e) {
+				// TODO: handle exception
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	
+	public void onConnected() {
+		myFBReaderApiClient.addListener(FBReaderApiListener.getInstance(this));
 	}
 
+	
 	private class FBSyncPositionsAdapter extends AbstractThreadedSyncAdapter {
 		
 		private final Context myContext;
 		private ServerInterface myServerInterface;
+		private ContentResolver myContentResolver;
 		
 		public FBSyncPositionsAdapter(Context context) {
 			super(context, true);
@@ -53,12 +121,8 @@ public class FBSyncPositionsService extends FBSyncBaseService {
 			Account account = accountManager.getAccountsByType(accountType)[0];
 			String id = accountManager.getUserData(account, SyncConstants.SETTINGS_ID);
 			String sig = accountManager.getUserData(account, SyncConstants.SETTINGS_SIG);
-			try {
-				myServerInterface = new ServerInterface(id, sig);
-			} 
-			catch (ServerInterfaceException e) {
-				throw new IllegalArgumentException(e);
-			}
+			myServerInterface = new ServerInterface(id, sig);
+			myContentResolver = getContentResolver();
 		}
 		
 		@Override
@@ -79,9 +143,16 @@ public class FBSyncPositionsService extends FBSyncBaseService {
 					Book.POSITION,
 					Book.TIMESTAMP
 			};
-			
-			Cursor booksToSync = myContext.getContentResolver().query(Book.CONTENT_URI, projection,
-					Book.NEEDS_SYNC + " = 1", null, " " + Book.TIMESTAMP + " DESC ");
+			Cursor booksToSync = myContentResolver.query(
+					Book.CONTENT_URI, 
+					projection, 
+					Book.NEEDS_SYNC + " = 1", 
+					null, 
+					" " + Book.TIMESTAMP + " DESC "
+					);
+			if (!booksToSync.moveToFirst()) {
+				return;
+			}
 			
 			int hashIndex = booksToSync.getColumnIndex(Book.HASH);
 			int positionIndex = booksToSync.getColumnIndex(Book.POSITION);
@@ -91,7 +162,7 @@ public class FBSyncPositionsService extends FBSyncBaseService {
 			for (int i = 0; i < Math.min(booksToSync.getCount(), SYNCHRONIZED_ENTRIES_COUNT); ++i) {
 				String hash = booksToSync.getString(hashIndex);
 				String position = booksToSync.getString(positionIndex);
-				int timestamp = booksToSync.getInt(timestampIndex);
+				long timestamp = booksToSync.getLong(timestampIndex);
 				Log.i("com.sync", String.valueOf(i) + ": " + hash + " | " + position + 
 						" | " + String.valueOf(timestamp));
 				Position pos = new Position(hash + "&" + String.valueOf(timestamp) + "&" + position);
@@ -117,6 +188,53 @@ public class FBSyncPositionsService extends FBSyncBaseService {
 			}
 		}
 		
+		private void pushPosition(TextPosition textPosition, long timestamp, String hash) {
+			//String hash
+			ContentValues values = new ContentValues();
+			values.put(Book.HASH, hash);
+			values.put(Book.NEEDS_SYNC, 1);
+			values.put(Book.TIMESTAMP, timestamp);
+			values.put(Book.POSITION, Position.textPositionToString(textPosition));
+			myContentResolver.insert(Book.CONTENT_URI, values);
+			positionsToServer();
+		}
+		
+		private TextPosition pullPosition(String hash) {
+			
+			String[] projection = new String[] {
+					Book.BOOK_ID,
+					Book.HASH,
+					Book.TIMESTAMP
+			};
+			
+			LinkedList<String> books = new LinkedList<String>();
+			books.add(hash);
+			
+			Position[] positions;
+			try {
+				positions = myServerInterface.getPositions(books);
+			} catch (ServerInterfaceException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				return null;
+			}
+			if (positions.length != 0) {
+				Position position = positions[0];
+				Cursor c = myContentResolver.query(
+						Book.CONTENT_URI, 
+						projection, 
+						Book.HASH + " = '" + hash + "'", null, null);
+				int timestampColumnIndex = c.getColumnIndex(Book.TIMESTAMP);
+				if(c.moveToFirst()) {
+					long localTimestamp = c.getLong(timestampColumnIndex);
+					if (localTimestamp <= position.myTimestamp) {
+						return position.myPosition;
+					}
+				}
+			}
+			return null;
+		}
+		
 		private void positionsFromServer(){
 			String[] projection = new String[] {
 					Book.BOOK_ID,
@@ -128,6 +246,7 @@ public class FBSyncPositionsService extends FBSyncBaseService {
 					null, null, Book.TIMESTAMP + " DESC ");
 			int hashColumnIndex = c.getColumnIndex(Book.HASH);
 			LinkedList<String> books = new LinkedList<String>();
+			c.moveToFirst();
 			for (int i = 0; i < c.getCount(); ++i) {
 				books.add(c.getString(hashColumnIndex));
 				c.moveToNext();
@@ -137,11 +256,10 @@ public class FBSyncPositionsService extends FBSyncBaseService {
 				Position[] positions = myServerInterface.getPositions(books);
 				for (Position position : positions) {
 					ContentValues values = new ContentValues();
-					String[] positionParts = position.toString().split("&", 3);
-					values.put(Book.TIMESTAMP, Integer.parseInt(positionParts[1]));
-					values.put(Book.POSITION, positionParts[2]);
+					values.put(Book.TIMESTAMP, position.myTimestamp);
+					values.put(Book.POSITION, Position.textPositionToString(position.myPosition));
 					myContext.getContentResolver().update(Book.CONTENT_URI, values, 
-							Book.HASH + " = " + positionParts[0], null);
+							Book.HASH + " = '" + position.myHash + "'", null);
 				}
 			} 
 			catch(ServerInterfaceException e) {
@@ -150,9 +268,6 @@ public class FBSyncPositionsService extends FBSyncBaseService {
 						e.getCause().getMessage() + " in pfs");
 				return;
 			}
-			
-			
 		}
 	}
-
 }

@@ -41,11 +41,11 @@ public class FBData {
 		public void onCreate(SQLiteDatabase db) {
 			String bookQuery = "create table `" + Book.TABLE + "` (" +
 					Book.BOOK_ID + " int, " + 
-					Book.HASH + " varchar(64), " +
+					Book.HASH + " varchar(64) NOT NULL, " +
 					Book.TITLE + " text, " +
 					Book.AUTHOR + " text, " +
 					Book.POSITION + " varchar(64), " +
-					Book.TIMESTAMP + " int NOT NULL, " +
+					Book.TIMESTAMP + " bigint NOT NULL, " +
 					Book.NEEDS_SYNC + " int );";
 			db.execSQL(bookQuery);
 		}
@@ -61,24 +61,34 @@ public class FBData {
 		private Book(){};
 		
 		public static final String TABLE = "book";
-		
 		public static final Uri CONTENT_URI = Uri.parse("content://" +
 				FBSyncPositionsProvider.AUTHORITY + "/" + TABLE);
-		
 		public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.com.sync.books";
-		
 		public static final String BOOK_ID = "_id";
-		
 		public static final String TITLE = "title";
-		
 		public static final String AUTHOR = "author";
-		
 		public static final String HASH = "hash";
-		
 		public static final String POSITION = "position";
-		
 		public static final String TIMESTAMP = "timestamp";
-		
 		public static final String NEEDS_SYNC = "needs_sync";
+		
+//		public static boolean addBook (Context context, String hash) {
+//			
+//			String[] projection = new String[] {
+//					Book.BOOK_ID,
+//					Book.HASH,
+//					Book.TIMESTAMP
+//			};
+//			
+//			SQLiteDatabase db = FBData
+//								.getInstance(context)
+//								.myDatabaseHelper
+//								.getWritableDatabase();
+//			Cursor c = db.query(
+//					Book.TABLE, 
+//					projection, 
+//					Book.HASH + " = " + hash, 
+//					null, null, null, null);
+//		}
 	}
 }

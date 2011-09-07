@@ -120,7 +120,7 @@ public class ServerInterface{
 	}
 
 
-	public ServerInterface(String id, String signature) throws ServerInterfaceException {
+	public ServerInterface(String id, String signature) {
 		myID = id;
 		mySignature = signature;
 	}

@@ -71,7 +71,7 @@ public class FBSyncPositionsProvider extends FBSyncBaseContentProvider {
 		if (initialValues != null) {
 			values = new ContentValues(initialValues);
 		} else {
-			values = new ContentValues();
+			return null;
 		}
 		
 		SQLiteDatabase db = myFBData.myDatabaseHelper.getWritableDatabase();
@@ -89,7 +89,6 @@ public class FBSyncPositionsProvider extends FBSyncBaseContentProvider {
 		if (ourUriMatcher.match(uri) == -1) {
 			throw new IllegalArgumentException("Unknown uri:" + uri);	
 		}
-		// TODO update on new_timestamp > old_timestamp
 		String[] projection = new String[] {
 				Book.HASH,
 				Book.TIMESTAMP
@@ -102,18 +101,23 @@ public class FBSyncPositionsProvider extends FBSyncBaseContentProvider {
 		canPerform &= values.containsKey(Book.POSITION);
 
 		if (canPerform) {
-			Integer newTimestamp = values.getAsInteger(Book.TIMESTAMP);
+			long newTimestamp = values.getAsLong(Book.TIMESTAMP);
 			String hash = values.getAsString(Book.HASH);
 			
 			Cursor bookToUpdate = query(Book.CONTENT_URI, projection, 
-					Book.HASH + " = " + hash, null, null);
+					Book.HASH + " = '" + hash + "'", null, null);
 			if (bookToUpdate.getCount() > 0) {
-				Integer oldTimestamp = bookToUpdate.getInt(bookToUpdate.getColumnIndex(Book.TIMESTAMP));
+				long oldTimestamp = 
+					bookToUpdate.getLong(bookToUpdate.getColumnIndex(Book.TIMESTAMP));
 				if (newTimestamp > oldTimestamp) {
 					SQLiteDatabase db = myFBData.myDatabaseHelper.getWritableDatabase();
 					count = db.update(Book.TABLE, values, where, whereArgs);
 				}
 			}
+//			 else {
+//					SQLiteDatabase db = myFBData.myDatabaseHelper.getWritableDatabase();
+//					count = (int) db.insert(Book.TABLE, null, values);
+//				}
 		}
 		getContext().getContentResolver().notifyChange(uri, null);
 		return count;
@@ -135,7 +139,7 @@ public class FBSyncPositionsProvider extends FBSyncBaseContentProvider {
 	public static class Position {
 		public final String myHash;
 		public final TextPosition myPosition;
-		public final int myTimestamp;
+		public final long myTimestamp;
 		
 		public Position(String hash, TextPosition position, int timestamp){
 			myHash = hash;
@@ -143,11 +147,18 @@ public class FBSyncPositionsProvider extends FBSyncBaseContentProvider {
 			myPosition = position;
 		}
 		
+		public static String textPositionToString(TextPosition textPosition) {
+			String ret = String.valueOf(textPosition.ParagraphIndex);
+			ret += '&' + String.valueOf(textPosition.ElementIndex);
+			ret += '&' + String.valueOf(textPosition.CharIndex);
+			return ret;
+		}
+		
 		public Position(String stringValue) {
 			try {
 				String[] parts = stringValue.split("&");
 				myHash = parts[0];
-				myTimestamp = Integer.parseInt(parts[1]);
+				myTimestamp = Long.parseLong(parts[1]);
 				myPosition = new TextPosition(
 						Integer.parseInt(parts[2]),
 						Integer.parseInt(parts[3]),
@@ -159,6 +170,10 @@ public class FBSyncPositionsProvider extends FBSyncBaseContentProvider {
 			}
 		}
 		
+		/**
+		 * Represents Position as hash&timestamp&paragraphIndex&elementIndex&charIndex
+		 * @return string representation of Position
+		 */
 		public String toString() {
 			String stringValue = myHash + "&";
 			stringValue += String.valueOf(myTimestamp) + "&";

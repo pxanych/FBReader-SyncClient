@@ -4,6 +4,8 @@
 
 package org.geometerplus.android.fbreader.api;
 
+import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
 public interface Api {
@@ -22,6 +24,7 @@ public interface Api {
 	//List<String> getBookAuthors() throws ApiException;
 	List<String> getBookTags() throws ApiException;
 	String getBookFileName() throws ApiException;
+	String getBookHash() throws ApiException, IOException, NoSuchAlgorithmException;
 
 	// text information
 	int getParagraphsNumber() throws ApiException;

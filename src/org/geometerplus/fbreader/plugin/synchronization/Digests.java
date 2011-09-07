@@ -1,10 +1,16 @@
 package org.geometerplus.fbreader.plugin.synchronization;
 
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.security.InvalidKeyException;
+import java.security.Key;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
-import java.io.*;
-import java.security.*;
 
 
 public class Digests{
@@ -18,10 +24,30 @@ public class Digests{
             return null;
         }
     }
+    
+    public static String fileHashSHA256(String filename) {
+    	try {
+        	MessageDigest SHA256 = MessageDigest.getInstance("SHA-256");
+        	InputStream filestream = new FileInputStream(filename);
+        	
+        	byte[] bytes = new byte[1024];
+        	int nread = 0;
+        	while((nread = filestream.read(bytes)) != -1){
+        		SHA256.update(bytes, 0, nread);
+        	}
+        	return byteArrayToHexString(SHA256.digest());
+    	}
+    	catch (IOException e){
+    		return null;
+    	}
+    	catch (NoSuchAlgorithmException e) {
+			return null;
+		}
+    }
 
     
     public static String hmacSHA256(InputStream inStream, String key)
-    throws InvalidKeyException {
+    					throws InvalidKeyException {
     	
     	Mac hmacSHA256 = null;
         Key k = null;	

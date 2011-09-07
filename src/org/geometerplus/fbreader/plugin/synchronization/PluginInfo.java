@@ -27,10 +27,18 @@ import android.net.Uri;
 import org.geometerplus.android.fbreader.api.PluginApi;
 
 import org.geometerplus.fbreader.plugin.synchronization.R;
+import org.geometerplus.fbreader.plugin.synchronization.service.FBSyncPositionsService;
 
 public class PluginInfo extends PluginApi.PluginInfo {
 	@Override
 	protected List<PluginApi.ActionInfo> implementedActions(Context context) {
+		
+		Intent intent = new Intent(context, FBSyncPositionsService.class);
+		intent.putExtra(
+				FBSyncPositionsService.FBREADER_ACTION, 
+				FBSyncPositionsService.FBREADER_STARTED);
+		context.startService(intent);
+		
 		return Collections.<PluginApi.ActionInfo>singletonList(new PluginApi.MenuActionInfo(
 			Uri.parse("http://sync.com/sync"),
 			context.getText(R.string.sync_menu_item).toString()

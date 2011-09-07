@@ -8,6 +8,7 @@ import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.MotionEvent;
@@ -18,6 +19,39 @@ import android.webkit.WebViewClient;
 import android.widget.Button;
 
 public class SyncAuth extends Activity {
+	
+	private static final String GOOGLE_DIALOG = "https://www.google.com/accounts/ServiceLogin";
+	//?... - google shows login dialog
+	private static final String GOOGLE_SIGNED_IN = "/accounts/SetSID";
+	// - user clicks "Sign In"
+	private boolean signedIn = false;
+	
+	
+	public static boolean hasAccount(Context context) {
+		AccountManager am = AccountManager.get(context);
+		return am.getAccountsByType(context.getString(R.string.account_type)).length > 0;
+	}
+	
+	
+	public static Boolean addAccount(Context context, AccountManager accountManager, String id, String signature) {
+		Account account = new Account(
+				context.getString(R.string.account_name), 
+				context.getString(R.string.account_type)
+				);
+		Bundle userData = new Bundle();
+		userData.putString(SyncConstants.SETTINGS_ID, id);
+		userData.putString(SyncConstants.SETTINGS_SIG, signature);
+
+		boolean result = accountManager.addAccountExplicitly(account, "", userData);
+		ContentResolver.setIsSyncable(account, context.getString(R.string.authority_positions), 1);
+		ContentResolver.setIsSyncable(account, context.getString(R.string.authority_bookmarks), 1);
+		ContentResolver.setIsSyncable(account, context.getString(R.string.authority_settings), 1);
+		ContentResolver.addPeriodicSync(account, context.getString(R.string.authority_positions), new Bundle(), 1800);
+		ContentResolver.addPeriodicSync(account, context.getString(R.string.authority_bookmarks), new Bundle(), 1800);
+		ContentResolver.setSyncAutomatically(account, context.getString(R.string.authority_positions), true);
+		ContentResolver.setSyncAutomatically(account, context.getString(R.string.authority_bookmarks), true);
+		return result;
+	}
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -60,6 +94,7 @@ public class SyncAuth extends Activity {
 		browserView.setWebViewClient(new SyncWebViewClient());
 		browserView.getSettings().setJavaScriptEnabled(true);
 		browserView.loadUrl(ServerInterface.AUTH_URL);
+		browserView.setVisibility(View.INVISIBLE);
     }
 	
     
@@ -91,26 +126,6 @@ public class SyncAuth extends Activity {
     	}
 	}
 	
-	
-	public static Boolean addAccount(Context context, AccountManager accountManager, String id, String signature) {
-		Account account = new Account(
-				context.getString(R.string.account_name), 
-				context.getString(R.string.account_type)
-				);
-		Bundle userData = new Bundle();
-		userData.putString(SyncConstants.SETTINGS_ID, id);
-		userData.putString(SyncConstants.SETTINGS_SIG, signature);
-		ContentResolver.setIsSyncable(account, context.getString(R.string.authority_positions), 1);
-		ContentResolver.setIsSyncable(account, context.getString(R.string.authority_bookmarks), 1);
-		ContentResolver.setIsSyncable(account, context.getString(R.string.authority_settings), 1);
-		ContentResolver.addPeriodicSync(account, context.getString(R.string.authority_positions), new Bundle(), 1800);
-		ContentResolver.addPeriodicSync(account, context.getString(R.string.authority_bookmarks), new Bundle(), 1800);
-		ContentResolver.setSyncAutomatically(account, context.getString(R.string.authority_positions), true);
-		ContentResolver.setSyncAutomatically(account, context.getString(R.string.authority_bookmarks), true);
-		return accountManager.addAccountExplicitly(account, "", userData);
-	}
-	
-	
     private class SyncWebViewClient extends WebViewClient {
     	@Override
 	    public boolean shouldOverrideUrlLoading(WebView view, String url) {
@@ -118,11 +133,23 @@ public class SyncAuth extends Activity {
 		        view.loadUrl(url);
 		        return true;
 	    	} else {
-	    		view.setVisibility(View.INVISIBLE);
 	    		completeAuthentication(Uri.parse(url));
 	    		return false;
 	    	}
 	    }
+    	
+    	@Override
+    	public void onPageStarted(WebView view, String url, Bitmap favicon) {
+    		if (GOOGLE_DIALOG.equals(url.split("\\?", 2)[0]) && !signedIn) {
+    			view.setVisibility(View.VISIBLE);	
+    		}
+    		String path = Uri.parse(url).getPath();
+    		if (GOOGLE_SIGNED_IN.equals(path)) {
+    			view.setVisibility(View.GONE);
+    			signedIn = true;
+    		}
+    		super.onPageStarted(view, url, favicon);
+    	}
 	}
     
     @Override
