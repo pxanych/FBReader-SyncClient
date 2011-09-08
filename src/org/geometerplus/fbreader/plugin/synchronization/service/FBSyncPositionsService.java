@@ -27,7 +27,6 @@ import android.content.Intent;
 import android.content.SyncResult;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.os.Debug;
 import android.util.Log;
 
 public class FBSyncPositionsService extends FBSyncBaseService implements ConnectionListener{
@@ -37,7 +36,7 @@ public class FBSyncPositionsService extends FBSyncBaseService implements Connect
 	public static final int FBREADER_PULL_POSITION = 1;
 	public static final int FBREADER_PUSH_POSITION = 2;
 	public static final int FBREADER_STARTED = 3;
-	private ApiClientImplementation myFBReaderApiClient;
+	private static ApiClientImplementation ourFBReaderApiClient;
 	
 	
 	protected AbstractThreadedSyncAdapter getSyncAdapter() {
@@ -51,10 +50,12 @@ public class FBSyncPositionsService extends FBSyncBaseService implements Connect
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		Log.i("Service", "starting");
 		if (intent.getIntExtra(FBREADER_ACTION, -1) == FBREADER_STARTED) {
-			myFBReaderApiClient = new ApiClientImplementation(this, this);
+			if (ourFBReaderApiClient == null) {
+				ourFBReaderApiClient = new ApiClientImplementation(this, this);
+			}
 		} else {
 			if (SyncAuth.hasAccount(this)) {
-				new ServiceStarter(intent, myFBReaderApiClient).start();
+				new ServiceStarter(intent, ourFBReaderApiClient).start();
 			}
 		}
 		Log.i("Service", "ok");
@@ -62,7 +63,7 @@ public class FBSyncPositionsService extends FBSyncBaseService implements Connect
 	}
 	
 	public void onConnected() {
-		myFBReaderApiClient.addListener(FBReaderApiListener.getInstance(this));
+		ourFBReaderApiClient.addListener(FBReaderApiListener.getInstance(this));
 	}
 	
 private class ServiceStarter extends Thread {

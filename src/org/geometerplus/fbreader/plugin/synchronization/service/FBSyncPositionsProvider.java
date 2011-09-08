@@ -9,9 +9,11 @@ import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.UriMatcher;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
+import android.os.Debug;
 
 
 public class FBSyncPositionsProvider extends FBSyncBaseContentProvider {
@@ -70,16 +72,22 @@ public class FBSyncPositionsProvider extends FBSyncBaseContentProvider {
 			return null;
 		}
 		SQLiteDatabase db = myFBData.myDatabaseHelper.getWritableDatabase();
-		long rowId = db.insert(Book.TABLE, null, values);
-		
+		long rowId;
+		//try {
+			rowId = db.insert(Book.TABLE, null, values);
+		//}
 		if (rowId == -1) {
 			String hash = values.getAsString(Book.HASH);
-			int count = db.update(Book.TABLE, values, Book.HASH + " = '" + hash + "'", null);
-			if (count == 0) {
-				return null;
+			String where = Book.HASH + " = '" + hash + "'";
+			rowId = update(uri, values, where, null);
+			Cursor c = query(
+					Book.CONTENT_URI, 
+					new String[] {Book.BOOK_ID, Book.HASH}, 
+					where, null, null);
+			if (c.moveToFirst()) {
+				rowId = c.getInt(c.getColumnIndex(Book.BOOK_ID));
 			}
 		}
-
 		Uri noteUri = ContentUris.withAppendedId(Book.CONTENT_URI, rowId);
 		getContext().getContentResolver().notifyChange(noteUri, null);
 		return noteUri;
