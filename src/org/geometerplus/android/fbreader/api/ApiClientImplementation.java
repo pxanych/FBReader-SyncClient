@@ -73,7 +73,9 @@ public class ApiClientImplementation implements ServiceConnection, Api, ApiMetho
 	}
 
 	public void addListener(ApiListener listener) {
-		myApiListeners.add(listener);
+		if (!myApiListeners.contains(listener)) {
+			myApiListeners.add(listener);
+		}
 	}
 
 	public void removeListener(ApiListener listener) {

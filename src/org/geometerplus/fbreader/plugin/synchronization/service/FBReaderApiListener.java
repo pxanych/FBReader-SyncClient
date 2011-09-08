@@ -12,7 +12,10 @@ public class FBReaderApiListener implements ApiListener {
 	private static FBReaderApiListener ourInstance = null;
 	
 	public static FBReaderApiListener getInstance(Context context) {
-		return (ourInstance != null) ? ourInstance : new FBReaderApiListener(context);
+		if (ourInstance == null) {
+			ourInstance = new FBReaderApiListener(context);
+		}
+		return ourInstance;
 	}
 	
 	private FBReaderApiListener(Context context) {
