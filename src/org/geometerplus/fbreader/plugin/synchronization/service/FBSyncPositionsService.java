@@ -66,7 +66,7 @@ public class FBSyncPositionsService extends FBSyncBaseService implements Connect
 		ourFBReaderApiClient.addListener(FBReaderApiListener.getInstance(this));
 	}
 	
-private class ServiceStarter extends Thread {
+	private class ServiceStarter extends Thread {
 		
 		private Intent myIntent;
 		private ApiClientImplementation myApiClient;
@@ -96,9 +96,36 @@ private class ServiceStarter extends Thread {
 								hash
 								);
 					case FBREADER_PULL_POSITION:
-						position = positionsAdapter.pullPosition(hash);
-						if (position != null) {
-							myApiClient.setPageStart(position);
+						FBSyncPositionsAdapter adapter = (FBSyncPositionsAdapter)ourSyncAdapter;
+						Position cachedPosition = adapter.getPositionByHash(hash);
+						FBSyncPositionsAdapter.PositionDownloader downloader = 
+							adapter.getPositionDownloader(cachedPosition, hash);
+						Position serverPosition = downloader.getResult(true, 2000);
+						Position positionToSet = null;
+						if (downloader.isDone()) {
+							
+							if (cachedPosition != null) {
+								positionToSet = (serverPosition.compare(cachedPosition) > 0) ?
+										serverPosition : cachedPosition;
+								
+							} else {
+								positionToSet = serverPosition;
+							}
+							if (positionToSet != null) {
+								myApiClient.setPageStart(positionToSet.myPosition);
+							}
+						} else {
+							serverPosition = downloader.getResult(true, 10000);
+							if (cachedPosition != null) {
+								positionToSet = (serverPosition.compare(cachedPosition) > 0) ?
+										serverPosition : cachedPosition;
+								
+							} else {
+								positionToSet = serverPosition;
+							}
+							if (positionToSet != null) {
+								myApiClient.setPageStart(positionToSet.myPosition);
+							}
 						}
 				}
 			}
@@ -107,7 +134,7 @@ private class ServiceStarter extends Thread {
 			}
 		}
 	}
-
+	
 	
 	private class FBSyncPositionsAdapter extends AbstractThreadedSyncAdapter {
 		
@@ -188,7 +215,12 @@ private class ServiceStarter extends Thread {
 			}
 		}
 		
+		
 		private void pushPosition(TextPosition textPosition, long timestamp, String hash) {
+			Position oldPosition = getPositionByHash(hash);
+			if (Position.compareTextPositions(textPosition, oldPosition.myPosition) > 0) {
+				return;
+			}
 			ContentValues values = new ContentValues();
 			values.put(Book.HASH, hash);
 			values.put(Book.NEEDS_SYNC, 1);
@@ -198,48 +230,29 @@ private class ServiceStarter extends Thread {
 			positionsToServer();
 		}
 		
-		private TextPosition pullPosition(String hash) {
-			
-			String[] projection = new String[] {
-					Book.BOOK_ID,
-					Book.HASH,
-					Book.POSITION,
-					Book.TIMESTAMP
-			};
-			
-			LinkedList<String> books = new LinkedList<String>();
-			books.add(hash);
-			
-			Position[] positions;
-			try {
-				positions = myServerInterface.getPositions(books);
-			} catch (ServerInterfaceException e) {
-				Log.e(SyncConstants.TAG, "", e);
-				return null;
-			}
-			if (positions.length != 0) {
-				Position position = positions[0];
-				Cursor c = myContentResolver.query(
-						Book.CONTENT_URI, 
-						projection, 
-						Book.HASH + " = '" + hash + "'", null, null);
-				int timestampColumnIndex = c.getColumnIndex(Book.TIMESTAMP);
-				int positionColumnIndex = c.getColumnIndex(Book.POSITION);
-				int hashColumnIndex = c.getColumnIndex(Book.HASH);
-				
-				if(c.moveToFirst()) {
-					Position localPosition = new Position(
-							c.getString(hashColumnIndex),
-							c.getString(positionColumnIndex),
-							c.getLong(timestampColumnIndex)
-							);
-					if (position.compare(localPosition) > 0) {
-						return position.myPosition;
-					}
-				}
-			}
-			return null;
-		}
+		
+//		private TextPosition pullPosition(String hash) {
+//			LinkedList<String> books = new LinkedList<String>();
+//			books.add(hash);
+//			
+//			Position[] positions;
+//			try {
+//				positions = myServerInterface.getPositions(books);
+//			} catch (ServerInterfaceException e) {
+//				Log.e(SyncConstants.TAG, "", e);
+//				return null;
+//			}
+//			if (positions.length != 0) {
+//				Position position = positions[0];
+//				Position localPosition = getPositionByHash(hash);
+//				if (position.compare(localPosition) <= 0) {
+//					return null;
+//				}
+//				return position.myPosition;
+//			}
+//			return null;
+//		}
+		
 		
 		private void positionsFromServer(){
 			String[] projection = new String[] {
@@ -271,6 +284,99 @@ private class ServiceStarter extends Thread {
 			catch(ServerInterfaceException e) {
 				Log.e(SyncConstants.TAG, "", e);
 				return;
+			}
+		}
+		
+		private Position getPositionByHash(String hash) {
+			String[] projection = new String[] {
+					Book.HASH,
+					Book.POSITION,
+					Book.TIMESTAMP
+			};
+			Cursor c = myContentResolver.query(
+					Book.CONTENT_URI, 
+					projection, 
+					Book.HASH + " = '" + hash + "'", null, null);
+			
+			if(c.moveToFirst()) {
+				Position ret = new Position(
+						c.getString(c.getColumnIndex(Book.HASH)),
+						c.getString(c.getColumnIndex(Book.POSITION)),
+						c.getLong(c.getColumnIndex(Book.TIMESTAMP))
+						);
+				return ret;
+			} else {
+				return null;
+			}
+		}
+		
+		public PositionDownloader getPositionDownloader(Position defaultValue, String hash) {
+			return new PositionDownloader(defaultValue, hash);
+		}
+		
+		private class PositionDownloader extends Thread {
+
+			private Boolean myCompleted = false;
+			private Position myResult;
+			private String myBookHash;
+			
+			public PositionDownloader(Position defaultValue, String hash) {
+				super();
+				myResult = defaultValue;
+				myBookHash = hash;
+			}
+			
+			public boolean isDone() {
+				synchronized (this) {
+					return myCompleted;
+				}
+			}
+			
+			public Position getResult(boolean waitForServer, int maxMillis) {
+				if (isDone()) {
+					return myResult;
+				}
+				synchronized (this) {
+					while(maxMillis > 0 && waitForServer) {
+						try {
+							wait(200);
+						}
+						catch (InterruptedException e) {
+							myCompleted = true;
+						}
+						if (myCompleted) {
+							return myResult;
+						}
+						maxMillis -= 200;
+					}
+					return myResult;
+				}
+			}
+			
+			@Override
+			public void run() {
+				LinkedList<String> books = new LinkedList<String>();
+				books.add(myBookHash);
+				
+				Position[] positions = null;
+				try {
+					positions = myServerInterface.getPositions(books);
+				} catch (ServerInterfaceException e) {
+					Log.e(SyncConstants.TAG, "", e);
+				}
+				if (positions != null && positions.length != 0) {
+					Position position = positions[0];
+					synchronized (this) {
+						myResult = position;
+						myCompleted = true;
+						this.notifyAll();
+					}
+				} else {
+					synchronized (this) {
+						myCompleted = true;
+						this.notifyAll();
+					}
+				}
 			}
 		}
 	}

@@ -71,24 +71,5 @@ public class FBData {
 		public static final String POSITION = "position";
 		public static final String TIMESTAMP = "timestamp";
 		public static final String NEEDS_SYNC = "needs_sync";
-		
-//		public static boolean addBook (Context context, String hash) {
-//			
-//			String[] projection = new String[] {
-//					Book.BOOK_ID,
-//					Book.HASH,
-//					Book.TIMESTAMP
-//			};
-//			
-//			SQLiteDatabase db = FBData
-//								.getInstance(context)
-//								.myDatabaseHelper
-//								.getWritableDatabase();
-//			Cursor c = db.query(
-//					Book.TABLE, 
-//					projection, 
-//					Book.HASH + " = " + hash, 
-//					null, null, null, null);
-//		}
 	}
 }

@@ -9,11 +9,9 @@ import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.UriMatcher;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
-import android.os.Debug;
 
 
 public class FBSyncPositionsProvider extends FBSyncBaseContentProvider {
@@ -144,8 +142,8 @@ public class FBSyncPositionsProvider extends FBSyncBaseContentProvider {
 		getContext().getContentResolver().notifyChange(uri, null);
         return count;
 	}
-
-
+	
+	
 	public static class Position {
 		public final String myHash;
 		public final TextPosition myPosition;
@@ -222,16 +220,50 @@ public class FBSyncPositionsProvider extends FBSyncBaseContentProvider {
 			}
 			if (myPosition.ParagraphIndex > cmp.myPosition.ParagraphIndex) {
 				return 1;
-			} else if (myPosition.ElementIndex > cmp.myPosition.ElementIndex) {
-				return 1;
-			} else if (myPosition.CharIndex > cmp.myPosition.CharIndex) {
-				return 1;
-			} else if (myTimestamp > cmp.myTimestamp) {
-				return 1;
-			} else if (myTimestamp == cmp.myTimestamp) {
-				return 0;
-			} else {
+			} else if (myPosition.ParagraphIndex < cmp.myPosition.ParagraphIndex) {
 				return -1;
+			}
+			
+			if (myPosition.ElementIndex > cmp.myPosition.ElementIndex) {
+				return 1;
+			} else if (myPosition.ElementIndex < cmp.myPosition.ElementIndex) {
+				return -1;
+			}
+			
+			if (myPosition.CharIndex > cmp.myPosition.CharIndex) {
+				return 1;
+			} else if (myPosition.CharIndex < cmp.myPosition.CharIndex) {
+				return -1;
+			}
+			
+			if (myTimestamp > cmp.myTimestamp) {
+				return 1;
+			} else if (myTimestamp < cmp.myTimestamp) {
+				return -1;
+			} else {
+				return 0;
+			}
+		}
+		
+		public static int compareTextPositions(TextPosition a, TextPosition b) {
+			if (a.ParagraphIndex > b.ParagraphIndex) {
+				return 1;
+			} else if (a.ParagraphIndex < b.ParagraphIndex) {
+				return -1;
+			}
+			
+			if (a.ElementIndex > b.ElementIndex) {
+				return 1;
+			} else if (a.ElementIndex < b.ElementIndex) {
+				return -1;
+			}
+			
+			if (a.CharIndex > b.CharIndex) {
+				return 1;
+			} else if (a.CharIndex < b.CharIndex) {
+				return -1;
+			} else {
+				return 0;
 			}
 		}
 	}
