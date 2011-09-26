@@ -18,9 +18,9 @@ import android.os.Bundle;
 
 public class ServerInterface{
 	
-    public static final String HOST = "https://data.fbreader.org/sync/";
-    public static final String AUTH_URL = "https://data.fbreader.org/sync/?sync_respondtype=url";
-    public static final String API_URL = "https://data.fbreader.org/sync/sync_api_interface.php5";
+    public static final String HOST = "https://data.fbreader.org/sync/auth/";
+    public static final String AUTH_URL = "https://data.fbreader.org/sync/auth/?sync_respondtype=url";
+    public static final String API_URL = "https://data.fbreader.org/sync/auth/sync_api_interface.php5";
 
     public static final String ID_KEY = "id";
     public static final String SIG_KEY = "signature";
